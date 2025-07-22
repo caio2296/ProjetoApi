@@ -1,0 +1,182 @@
+﻿using Dominio.Interface;
+using Entidades;
+using Infraestrutura.Configuracao;
+using Infraestrutura.Repositorio.Generico;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System.Numerics;
+
+namespace Infraestrutura.Repositorio
+{
+    public class RepositorioFrutas:RepositorioGenerico<Frutas>, IFrutas
+    {
+        private readonly DbContextOptions<Contexto> _optionsBuilder;
+
+        private readonly string _connectionString;
+
+        public RepositorioFrutas(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+        //public RepositorioFrutas()
+        //{
+        //    _optionsBuilder = new DbContextOptions<Contexto>();
+        //}
+
+        public async Task<bool> ExisteFrutas(string id)
+        {
+            using (var banco = new Contexto(_optionsBuilder))
+            {
+                return await banco.Frutas
+                       .Where(f => f.Id.Equals(id))
+                       .AsTracking()
+                       .AnyAsync();
+            }
+        }
+
+        public async Task AdicionarFrutasSemEF(Frutas fruta)
+        {
+            const string sql = @"
+                INSERT INTO Frutas (SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor)
+                VALUES (@Id, @Descricao, @Tamanho, @Cor)";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                using(var cmd = new SqlCommand(sql,conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", fruta.Id);
+                    cmd.Parameters.AddWithValue("@Descricao", fruta.Descricao);
+                    cmd.Parameters.AddWithValue("@Tamanho", fruta.Tamanho);
+                    cmd.Parameters.AddWithValue("@Cor", fruta.Cor);
+
+                    await conn.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public async Task AtualizarFrutaSemEF(Frutas fruta)
+        {
+            const string sql = @"
+                UPDATE Frutas
+                SET SLT_Descricao = @Descricao,
+                    SLT_Tamanho = @Tamanho,
+                    SLT_Cor = @Cor
+                WHERE SLT_ID = @Id";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand(sql, conn)) {
+                    cmd.Parameters.AddWithValue("@Id", fruta.Id);
+                    cmd.Parameters.AddWithValue("@Descricao", fruta.Descricao);
+                    cmd.Parameters.AddWithValue("@Tamanho", fruta.Tamanho);
+                    cmd.Parameters.AddWithValue("@Cor", fruta.Cor);
+
+                    await conn.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+
+        }
+
+        // Adicionar a lista de fruta e byid sem o ef 
+
+        public async Task<List<Frutas>> ListarFrutasSemEF()
+        {
+            var lista = new List<Frutas>();
+            const string sql = "SELECT SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor FROM Frutas";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand(sql, conn)) 
+                {
+                    await conn.OpenAsync();
+                    using var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        lista.Add(new Frutas
+                        {
+                            Id = reader["SLT_ID"].ToString(),
+                            Descricao = reader["SLT_Descricao"].ToString(),
+                            Tamanho = reader["SLT_Tamanho"].ToString(),
+                            Cor = reader["SLT_Cor"].ToString()
+                        });
+                    }
+                    return lista;
+                }
+            }
+        }
+
+        public async Task<Frutas?> BuscarPorId(string id)
+        {
+            const string sql = "SELECT SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor FROM Frutas WHERE SLT_ID = @Id";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+
+                    await conn.OpenAsync();
+                    using var reader = await cmd.ExecuteReaderAsync();
+
+                    if (await reader.ReadAsync())
+                    {
+                        return new Frutas
+                        {
+                            Id = reader["SLT_ID"].ToString(),
+                            Descricao = reader["SLT_Descricao"].ToString(),
+                            Tamanho = reader["SLT_Tamanho"].ToString(),
+                            Cor = reader["SLT_Cor"].ToString()
+                        };
+                    }
+
+                    return null;
+                }
+
+            }
+
+
+           
+        }
+
+        public async Task DeletarFruta(string id)
+        {
+            const string sql = "DELETE FROM Frutas WHERE SLT_ID = @Id";
+
+            using var conn = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            await conn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        public async Task<List<Frutas>> ListarFrutas(Expression<Func<Frutas, bool>> exFrutas)
+        {
+            using (var banco = new Contexto(_optionsBuilder))
+            {
+                return await banco.Frutas.Where(exFrutas).AsNoTracking().ToListAsync();
+            }
+        }
+
+        public async Task<List<Frutas>> ListarFrutasCustomizada(string idFrutas)
+        {
+            using (var banco = new Contexto(_optionsBuilder))
+            {
+                var listaFrutas = (from Frutas in banco.Frutas
+                                     where Frutas.Id == idFrutas
+                                     select new Frutas
+                                     {
+                                         Id = Frutas.Id,
+                                         Descricao = Frutas.Descricao,
+                                         Tamanho = Frutas.Tamanho,
+                                         Cor = Frutas.Cor,
+
+                                     }).AsNoTracking().ToListAsync();
+                return await listaFrutas;
+            }
+        }
+    }
+}
