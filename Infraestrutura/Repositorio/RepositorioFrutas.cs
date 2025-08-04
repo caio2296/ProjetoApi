@@ -35,7 +35,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task AdicionarFrutasSemEF(Frutas fruta)
+        public new async Task AdicionarFrutasSemEF(Frutas fruta)
         {
             const string sql = @"
                 INSERT INTO Frutas (SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor)
@@ -56,7 +56,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task AtualizarFrutaSemEF(Frutas fruta)
+        public new async Task AtualizarFrutaSemEF(Frutas fruta)
         {
             const string sql = @"
                 UPDATE Frutas
@@ -82,7 +82,7 @@ namespace Infraestrutura.Repositorio
 
         // Adicionar a lista de fruta e byid sem o ef 
 
-        public async Task<List<Frutas>> ListarFrutasSemEF()
+        public new async Task<List<Frutas>> ListarFrutasSemEF()
         {
             var lista = new List<Frutas>();
             const string sql = "SELECT SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor FROM Frutas";
@@ -108,7 +108,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task<Frutas?> BuscarPorId(string id)
+        public new async Task<Frutas?> BuscarPorId(string id)
         {
             const string sql = "SELECT SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor FROM Frutas WHERE SLT_ID = @Id";
 

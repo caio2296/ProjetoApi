@@ -10,7 +10,7 @@ namespace Infraestrutura.Configuracao
         public Contexto CreateDbContext(string[] args)
         {
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory()) // <<< CAMINHO CORRETO
+                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .Build();
 
