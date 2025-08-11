@@ -27,7 +27,7 @@ namespace Infraestrutura.Repositorio.Generico
             {
                 using (var data = new Contexto(_optionBuilder))
                 {
-                    data.Set<T>().Add(Objeto);
+                    data.Set<T>().Add(Objeto); 
                     await data.SaveChangesAsync();
                 }
             }

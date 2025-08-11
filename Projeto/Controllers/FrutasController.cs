@@ -19,37 +19,76 @@ namespace Projeto.Controllers
         // GET: api/<FrutasController>
         [HttpGet("/api/ListarFrutas")]
         [Produces("application/json")]
-        public async Task<List<Frutas>> ListarFrutas()
+        public async Task<ActionResult<List<Frutas>>> ListarFrutas()
         {
-            return await _frutas.ListarFrutasSemEF();
+            try
+            {
+                return Ok(await _frutas.ListarFrutasSemEF());
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex.Message);
+            }
+           
         }
 
         // POST api/<FrutasController>
         [HttpPost("/api/AdicionarFrutas")]
         [Produces("application/json")]
-        public async Task AdicionarFrutas([FromBody] Frutas novafruta)
+        public async Task<ActionResult> AdicionarFrutas([FromBody] Frutas novafruta)
         {
-            await _frutas.AdicionarFrutasSemEF(novafruta);
+            try
+            {
+                await _frutas.AdicionarFrutasSemEF(novafruta);
+                return Ok();
+            }  
+            catch (Exception ex)
+            {
+
+               return StatusCode(500, ex.Message);
+            }
+          
         }
 
         // PUT api/<FrutasController>/5
         [HttpPut("/api/AtualizarFruta")]
-        public async Task AtualizarFruta([FromBody] Frutas fruta)
+        public async Task<ActionResult> AtualizarFruta([FromBody] Frutas fruta)
         {
-            var novaFruta = await _frutas.BuscarPorId(fruta.Id);
-            novaFruta.Descricao = fruta.Descricao;
-            novaFruta.Tamanho = fruta.Tamanho;
-            novaFruta.Cor = fruta.Cor;
+            try
+            {
+                var novaFruta = await _frutas.BuscarPorId(fruta.Id);
+                novaFruta.Descricao = fruta.Descricao;
+                novaFruta.Tamanho = fruta.Tamanho;
+                novaFruta.Cor = fruta.Cor;
 
-            //await _frutas.Atualizar(novaFruta);
-            await _frutas.AtualizarFrutaSemEF(novaFruta);
+                //await _frutas.Atualizar(novaFruta);
+                await _frutas.AtualizarFrutaSemEF(novaFruta);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex.Message);
+            }
+
         }
 
         // DELETE api/<FrutasController>/5
         [HttpDelete("/api/ExcluirFruta")]
-        public async Task Delete([FromBody] Frutas fruta)
+        public async Task<ActionResult> Delete([FromBody] Frutas fruta)
         {
-            await _frutas.Excluir(fruta);
+            try
+            {
+                await _frutas.Excluir(fruta);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex.Message);
+            }
+
         }
     }
 }

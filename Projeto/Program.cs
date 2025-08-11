@@ -23,6 +23,10 @@ builder.Services.AddScoped<IFrutas>(provider =>
         provider.GetRequiredService<IConfiguration>()
             .GetConnectionString("Default")
     ));
+builder.Services.AddScoped<ICalendar>(provider =>
+    new RepositorioCalendar(
+        provider.GetRequiredService<IConfiguration>()
+            .GetConnectionString("Default")));
 
 builder.Services.AddControllers();
 
