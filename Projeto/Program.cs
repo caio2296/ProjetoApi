@@ -1,6 +1,5 @@
 using Dominio.Interface;
 using Dominio.Interface.Generico;
-using Infraestrutura.Configuracao;
 using Infraestrutura.Repositorio;
 using Infraestrutura.Repositorio.Generico;
 using Microsoft.EntityFrameworkCore;
