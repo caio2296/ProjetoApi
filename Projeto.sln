@@ -27,6 +27,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SqlFile", "SqlFile", "{3B295FB3-DE7B-4232-A1EA-7F6550473C02}"
 	ProjectSection(SolutionItems) = preProject
 		..\SQLQuery3.sql = ..\SQLQuery3.sql
+		SqlQuery_1.sql = SqlQuery_1.sql
 	EndProjectSection
 EndProject
 Global
