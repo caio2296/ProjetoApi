@@ -4,8 +4,11 @@ using Infraestrutura.Configuracao;
 using Infraestrutura.Repositorio.Generico;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Text.Json;
 
 namespace Infraestrutura.Repositorio
 {
@@ -37,14 +40,14 @@ namespace Infraestrutura.Repositorio
 
         public new async Task AdicionarFrutasSemEF(Frutas fruta)
         {
-            const string sql = @"
-                INSERT INTO Frutas (SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor)
-                VALUES (@Id, @Descricao, @Tamanho, @Cor)";
+            string nomeProcedimento = "AdicionarFruta";
 
             using (var conn = new SqlConnection(_connectionString))
             {
-                using(var cmd = new SqlCommand(sql,conn))
+                using (var cmd = new SqlCommand(nomeProcedimento, conn))
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
                     cmd.Parameters.AddWithValue("@Id", fruta.Id);
                     cmd.Parameters.AddWithValue("@Descricao", fruta.Descricao);
                     cmd.Parameters.AddWithValue("@Tamanho", fruta.Tamanho);
@@ -58,16 +61,14 @@ namespace Infraestrutura.Repositorio
 
         public new async Task AtualizarFrutaSemEF(Frutas fruta)
         {
-            const string sql = @"
-                UPDATE Frutas
-                SET SLT_Descricao = @Descricao,
-                    SLT_Tamanho = @Tamanho,
-                    SLT_Cor = @Cor
-                WHERE SLT_ID = @Id";
+            string nomeProcedimento = "AtualizarFruta";
 
             using (var conn = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand(sql, conn)) {
+                using (var cmd = new SqlCommand(nomeProcedimento, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
                     cmd.Parameters.AddWithValue("@Id", fruta.Id);
                     cmd.Parameters.AddWithValue("@Descricao", fruta.Descricao);
                     cmd.Parameters.AddWithValue("@Tamanho", fruta.Tamanho);
@@ -85,25 +86,32 @@ namespace Infraestrutura.Repositorio
         public new async Task<List<Frutas>> ListarFrutasSemEF()
         {
             var lista = new List<Frutas>();
-            const string sql = "SELECT SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor FROM Frutas";
+            string nomeProcedimento = "ListarFrutas";
 
             using (var conn = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand(sql, conn)) 
+                using (var cmd = new SqlCommand(nomeProcedimento, conn))
                 {
                     await conn.OpenAsync();
-                    using var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        lista.Add(new Frutas
+                        while (await reader.ReadAsync())
                         {
-                            Id = reader["SLT_ID"].ToString(),
-                            Descricao = reader["SLT_Descricao"].ToString(),
-                            Tamanho = reader["SLT_Tamanho"].ToString(),
-                            Cor = reader["SLT_Cor"].ToString()
-                        });
+                            var fruta = new Frutas
+                            {
+                                Id = reader.GetString(reader.GetOrdinal("SLT_ID")),
+                                Descricao = reader.GetString(reader.GetOrdinal("SLT_Descricao")),
+                                Cor = reader.GetString(reader.GetOrdinal("SLT_Cor")),
+                                Tamanho = reader.GetString(reader.GetOrdinal("SLT_Tamanho"))
+                            };
+
+                            lista.Add(fruta);
+                        }
+
+                        return lista;
+
                     }
-                    return lista;
                 }
             }
         }
@@ -143,14 +151,20 @@ namespace Infraestrutura.Repositorio
 
         public async Task DeletarFruta(string id)
         {
-            const string sql = "DELETE FROM Frutas WHERE SLT_ID = @Id";
+            const string nomeProcedimento = "DeletarFruta";
 
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@Id", id);
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand(nomeProcedimento, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", id);
 
-            await conn.OpenAsync();
-            await cmd.ExecuteNonQueryAsync();
+                    await conn.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+
         }
 
         public async Task<List<Frutas>> ListarFrutas(Expression<Func<Frutas, bool>> exFrutas)
