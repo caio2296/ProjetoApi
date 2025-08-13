@@ -11,6 +11,10 @@ namespace Dominio.Interface
 {
     public interface IFrutas: IGenerico<Frutas>
     {
+        Task AdicionarFrutasSemEF(Frutas Objeto);
+        Task AtualizarFrutaSemEF(Frutas Objeto);
+        Task DeletarFruta(string id);
+        Task<List<Frutas>> ListarFrutasSemEF();
         Task<List<Frutas>> ListarFrutas(Expression<Func<Frutas, bool>> exFrutas);
         Task<List<Frutas>> ListarFrutasCustomizada(string idUsuario);
         Task<bool> ExisteFrutas(string idFrutas);

@@ -80,7 +80,7 @@ namespace Projeto.Controllers
         {
             try
             {
-                await _frutas.Excluir(fruta);
+                await _frutas.DeletarFruta(fruta.Id);
                 return Ok();
             }
             catch (Exception ex)
