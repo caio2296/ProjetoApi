@@ -33,7 +33,6 @@ namespace Infraestrutura.Repositorio.Generico
             }
             catch (Exception ex)
             {
-
                 throw new Exception(ex.Message);
             }
 
@@ -54,7 +53,7 @@ namespace Infraestrutura.Repositorio.Generico
             throw new NotImplementedException();
         }
 
-        public async Task<T?> BuscarPorId(string id)
+        public  Task<T?> BuscarPorId(string id)
         {
             throw new NotImplementedException();
         }

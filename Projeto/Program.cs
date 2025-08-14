@@ -1,3 +1,5 @@
+using Aplicacao;
+using Aplicacao.Interface;
 using Dominio.Interface;
 using Dominio.Interface.Generico;
 using Infraestrutura.Repositorio;
@@ -28,6 +30,9 @@ builder.Services.AddScoped<ICalendar>(provider =>
             .GetConnectionString("Default")));
 
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<ICalendarAplicacao, CalendarAplicacao>();
+builder.Services.AddScoped<IFrutasAplicacao, FrutasAplicacao>();
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
 

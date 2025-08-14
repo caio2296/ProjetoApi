@@ -1,4 +1,5 @@
-﻿using Dominio.Interface;
+﻿using Aplicacao.Interface;
+using Dominio.Interface;
 using Entidades;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +11,10 @@ namespace Projeto.Controllers
     [ApiController]
     public class CalendarController : ControllerBase
     {
-        private ICalendar _calendar;
-        public CalendarController(ICalendar calendar)
+        private ICalendarAplicacao _calendarAplicacao;
+        public CalendarController(ICalendarAplicacao calendarAplicacao)
         {
-            _calendar = calendar;
+            _calendarAplicacao = calendarAplicacao;
         }
         // GET: api/<FrutasController>
         [HttpGet("/api/BuscarCalendar")]
@@ -21,7 +22,7 @@ namespace Projeto.Controllers
         public async Task<ActionResult<CalendarModel>> BuscarCalendar()
         {
 
-            return await _calendar.BuscarCalendar();
+            return await _calendarAplicacao.BuscarCalendar();
         }
 
         // GET api/<CalendarController>/5
