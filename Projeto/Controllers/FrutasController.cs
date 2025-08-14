@@ -1,7 +1,6 @@
 ﻿using Aplicacao.Interface;
 using Entidades;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,7 +22,15 @@ namespace Projeto.Controllers
         {
             try
             {
-                return Ok(await _frutasAplicacao.ListarFrutasSemEF());
+                var frutas = await _frutasAplicacao.ListarFrutasSemEF();
+                if (frutas == null || frutas.Count == 0)
+                    return NotFound("Nenhuma fruta encontrada.");
+
+                return Ok(frutas);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
@@ -38,38 +45,52 @@ namespace Projeto.Controllers
         [Produces("application/json")]
         public async Task<ActionResult> AdicionarFrutas([FromBody] Frutas novafruta)
         {
+            if (novafruta == null)
+                return BadRequest("Objeto fruta não pode ser nulo.");
+
             try
             {
                 await _frutasAplicacao.AdicionarFrutasSemEF(novafruta);
-                return Ok();
-            }  
+                return CreatedAtAction(nameof(ListarFrutas), new { id = novafruta.Id }, novafruta);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-
-               return StatusCode(500, ex.Message);
+                return StatusCode(500, "Erro interno: " + ex.Message);
             }
-          
+
         }
 
         // PUT api/<FrutasController>/5
         [HttpPut("/api/AtualizarFruta")]
         public async Task<ActionResult> AtualizarFruta([FromBody] Frutas fruta)
         {
+            if (fruta == null || string.IsNullOrEmpty(fruta.Id))
+                return BadRequest("Objeto fruta inválido ou ID não informado.");
+
             try
             {
-                var novaFruta = await _frutasAplicacao.BuscarPorId(fruta.Id);
-                novaFruta.Descricao = fruta.Descricao;
-                novaFruta.Tamanho = fruta.Tamanho;
-                novaFruta.Cor = fruta.Cor;
+                var frutaExistente = await _frutasAplicacao.BuscarPorId(fruta.Id);
+                if (frutaExistente == null)
+                    return NotFound($"Fruta com ID {fruta.Id} não encontrada.");
 
-                //await _frutas.Atualizar(novaFruta);
-                await _frutasAplicacao.AtualizarFrutaSemEF(novaFruta);
-                return Ok();
+                frutaExistente.Descricao = fruta.Descricao;
+                frutaExistente.Tamanho = fruta.Tamanho;
+                frutaExistente.Cor = fruta.Cor;
+
+                await _frutasAplicacao.AtualizarFrutaSemEF(frutaExistente);
+                return Ok(frutaExistente);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "Erro interno: " + ex.Message);
             }
 
         }
@@ -78,15 +99,25 @@ namespace Projeto.Controllers
         [HttpDelete("/api/ExcluirFruta")]
         public async Task<ActionResult> Delete([FromBody] Frutas fruta)
         {
+          if (fruta == null || string.IsNullOrEmpty(fruta.Id))
+                return BadRequest("Objeto fruta inválido ou ID não informado.");
+
             try
             {
+                var frutaExistente = await _frutasAplicacao.BuscarPorId(fruta.Id);
+                if (frutaExistente == null)
+                    return NotFound($"Fruta com ID {fruta.Id} não encontrada.");
+
                 await _frutasAplicacao.DeletarFruta(fruta.Id);
                 return Ok();
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
-
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "Erro interno: " + ex.Message);
             }
 
         }

@@ -22,12 +22,12 @@ builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddScoped<IFrutas>(provider =>
     new RepositorioFrutas(
         provider.GetRequiredService<IConfiguration>()
-            .GetConnectionString("Default")
+            .GetConnectionString("Default")!
     ));
 builder.Services.AddScoped<ICalendar>(provider =>
     new RepositorioCalendar(
         provider.GetRequiredService<IConfiguration>()
-            .GetConnectionString("Default")));
+            .GetConnectionString("Default")!));
 
 builder.Services.AddControllers();
 

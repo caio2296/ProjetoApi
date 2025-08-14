@@ -36,9 +36,12 @@ namespace Aplicacao
             await _frutas.AtualizarFrutaSemEF(Objeto);
         }
 
-        public Task<Frutas> BuscarPorId(string id)
+        public async Task<Frutas> BuscarPorId(string id)
         {
-            return _frutas.BuscarPorId(id);
+            var fruta = await _frutas.BuscarPorId(id);
+            if (fruta == null)
+                throw new InvalidOperationException("Fruta não encontrada");
+            return fruta;
         }
 
         public async Task DeletarFruta(string id)
