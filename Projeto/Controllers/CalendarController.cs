@@ -21,33 +21,19 @@ namespace Projeto.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<CalendarModel>> BuscarCalendar()
         {
-
-            return await _calendarAplicacao.BuscarCalendar();
-        }
-
-        // GET api/<CalendarController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<CalendarController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<CalendarController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<CalendarController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            try
+            {
+                var calendar = await _calendarAplicacao.BuscarCalendar();
+                if (calendar == null)
+                {
+                    return NotFound("Calendario não encontrado!");
+                }
+                return Ok(calendar);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
