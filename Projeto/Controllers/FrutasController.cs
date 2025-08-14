@@ -1,4 +1,4 @@
-﻿using Dominio.Interface;
+﻿using Aplicacao.Interface;
 using Entidades;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -11,10 +11,10 @@ namespace Projeto.Controllers
     [ApiController]
     public class FrutasController : ControllerBase
     {
-        private IFrutas _frutas;
-        public FrutasController(IFrutas frutas)
+        private IFrutasAplicacao _frutasAplicacao;
+        public FrutasController(IFrutasAplicacao frutasAplicacao)
         {
-                _frutas= frutas;
+            _frutasAplicacao = frutasAplicacao;
         }
         // GET: api/<FrutasController>
         [HttpGet("/api/ListarFrutas")]
@@ -23,7 +23,7 @@ namespace Projeto.Controllers
         {
             try
             {
-                return Ok(await _frutas.ListarFrutasSemEF());
+                return Ok(await _frutasAplicacao.ListarFrutasSemEF());
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@ namespace Projeto.Controllers
         {
             try
             {
-                await _frutas.AdicionarFrutasSemEF(novafruta);
+                await _frutasAplicacao.AdicionarFrutasSemEF(novafruta);
                 return Ok();
             }  
             catch (Exception ex)
@@ -57,13 +57,13 @@ namespace Projeto.Controllers
         {
             try
             {
-                var novaFruta = await _frutas.BuscarPorId(fruta.Id);
+                var novaFruta = await _frutasAplicacao.BuscarPorId(fruta.Id);
                 novaFruta.Descricao = fruta.Descricao;
                 novaFruta.Tamanho = fruta.Tamanho;
                 novaFruta.Cor = fruta.Cor;
 
                 //await _frutas.Atualizar(novaFruta);
-                await _frutas.AtualizarFrutaSemEF(novaFruta);
+                await _frutasAplicacao.AtualizarFrutaSemEF(novaFruta);
                 return Ok();
             }
             catch (Exception ex)
@@ -80,7 +80,7 @@ namespace Projeto.Controllers
         {
             try
             {
-                await _frutas.DeletarFruta(fruta.Id);
+                await _frutasAplicacao.DeletarFruta(fruta.Id);
                 return Ok();
             }
             catch (Exception ex)
