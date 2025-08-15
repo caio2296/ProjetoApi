@@ -1,5 +1,4 @@
 ﻿using Aplicacao.Interface;
-using Dominio.Interface;
 using Entidades;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +25,7 @@ namespace Projeto.Controllers
                 var calendar = await _calendarAplicacao.BuscarCalendar();
                 if (calendar == null)
                 {
-                    return NotFound("Calendario não encontrado!");
+                    return NotFound("Calendário não encontrado!");
                 }
                 return Ok(calendar);
             }

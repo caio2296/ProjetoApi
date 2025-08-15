@@ -2,6 +2,8 @@ using Aplicacao;
 using Aplicacao.Interface;
 using Dominio.Interface;
 using Dominio.Interface.Generico;
+using Dominio.Servicos;
+using Dominio.Servicos.Interfaces;
 using Infraestrutura.Repositorio;
 using Infraestrutura.Repositorio.Generico;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +35,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<ICalendarAplicacao, CalendarAplicacao>();
 builder.Services.AddScoped<IFrutasAplicacao, FrutasAplicacao>();
+
+builder.Services.AddScoped<IFrutasServicos, FrutasServico>();
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
 

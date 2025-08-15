@@ -1,20 +1,16 @@
 ﻿using Aplicacao.Interface;
-using Dominio.Interface;
+using Dominio.Servicos.Interfaces;
 using Entidades;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aplicacao
 {
     public class FrutasAplicacao : IFrutasAplicacao
     {
-        private IFrutas _frutas;
-        public FrutasAplicacao(IFrutas frutas)
+
+        private IFrutasServicos _frutasServicos;
+        public FrutasAplicacao(IFrutasServicos frutasServicos)
         {
-            _frutas = frutas;
+            _frutasServicos = frutasServicos;
         }
         public Task Adicionar(Frutas Objeto)
         {
@@ -23,7 +19,7 @@ namespace Aplicacao
 
         public async Task AdicionarFrutasSemEF(Frutas novafruta)
         {
-             await _frutas.AdicionarFrutasSemEF(novafruta);
+             await _frutasServicos.AdicionarFrutasSemEF(novafruta);
         }
 
         public Task Atualizar(Frutas Objeto)
@@ -33,12 +29,12 @@ namespace Aplicacao
 
         public async Task AtualizarFrutaSemEF(Frutas Objeto)
         {
-            await _frutas.AtualizarFrutaSemEF(Objeto);
+            await _frutasServicos.AtualizarFrutaSemEF(Objeto);
         }
 
         public async Task<Frutas> BuscarPorId(string id)
         {
-            var fruta = await _frutas.BuscarPorId(id);
+            var fruta = await _frutasServicos.BuscarPorId(id);
             if (fruta == null)
                 throw new InvalidOperationException("Fruta não encontrada");
             return fruta;
@@ -46,7 +42,7 @@ namespace Aplicacao
 
         public async Task DeletarFruta(string id)
         {
-            await _frutas.DeletarFruta(id);
+            await _frutasServicos.DeletarFruta(id);
         }
 
         public Task Excluir(Frutas Objeto)
@@ -61,7 +57,7 @@ namespace Aplicacao
 
         public async Task<List<Frutas>> ListarFrutasSemEF()
         {
-            return await _frutas.ListarFrutasSemEF();
+            return await _frutasServicos.ListarFrutasSemEF();
         }
     }
 }

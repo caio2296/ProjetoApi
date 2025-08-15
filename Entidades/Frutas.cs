@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Entidades.Notificacoes;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Entidades
 {
-    public class Frutas
+    public class Frutas: Notifica
     {
         [Column("SLT_ID")]
         public string Id { get; set; }
