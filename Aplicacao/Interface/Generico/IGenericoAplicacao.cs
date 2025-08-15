@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Aplicacao.Interface.Generico
+﻿namespace Aplicacao.Interface.Generico
 {
     public interface IGenericoAplicacao<T> where T: class
     {
