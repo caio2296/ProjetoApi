@@ -6,7 +6,11 @@ using Dominio.Servicos;
 using Dominio.Servicos.Interfaces;
 using Infraestrutura.Repositorio;
 using Infraestrutura.Repositorio.Generico;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Projeto.Token;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +21,9 @@ var builder = WebApplication.CreateBuilder(args);
 //                 builder.Configuration.GetConnectionString("Default")));
 
 
-// Já inclui o IConfiguration automaticamente
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-// Registre seu repositório injetando a connection string
+
 builder.Services.AddScoped<IFrutas>(provider =>
     new RepositorioFrutas(
         provider.GetRequiredService<IConfiguration>()
@@ -31,23 +34,104 @@ builder.Services.AddScoped<ICalendar>(provider =>
         provider.GetRequiredService<IConfiguration>()
             .GetConnectionString("Default")!));
 
+builder.Services.AddScoped<IUsuario>(provider =>
+    new RepositorioUsuario(
+        provider.GetRequiredService<IConfiguration>()
+                  .GetConnectionString("Default")!));
+
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IUsuarioAplicacao, UsuarioAplicacao>();
 builder.Services.AddScoped<ICalendarAplicacao, CalendarAplicacao>();
 builder.Services.AddScoped<IFrutasAplicacao, FrutasAplicacao>();
+builder.Services.AddScoped<TokenJwtBuilder>();
 
 builder.Services.AddScoped<IFrutasServicos, FrutasServico>();
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
 
-//builder.Services.AddScoped<IFrutas, RepositorioFrutas>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdministratorRole", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("UsuarioTipo", "adm");
+    });
+});
+
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header usando o Bearer.
+                        Entre com 'Bearer ' [espaço] então coloque seu token.
+                        Exemplo: 'Bearer 12345oiuytr'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+} );
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(option =>
+    {
+        option.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = "Security.Bearer",
+            ValidAudience = "Security.Bearer",
+
+            IssuerSigningKey = JwtSecurityKey.Creater("MinhaSuperChaveJWT_Secreta_123456789!")
+        };
+
+        option.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("OnAuthenticationFailed: " + context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("OnTokenValidated: " + context.SecurityToken);
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+
 
 var app = builder.Build();
 
+var chaveSecreta = "MinhaSuperChaveJWT_Secreta_123456789!";
+app.UseMiddleware<JwtTokenMiddleware>(chaveSecreta, builder.Configuration.GetConnectionString("Default"));
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -64,6 +148,7 @@ x.AllowAnyOrigin()
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

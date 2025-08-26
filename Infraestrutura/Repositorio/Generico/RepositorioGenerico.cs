@@ -53,7 +53,7 @@ namespace Infraestrutura.Repositorio.Generico
             throw new NotImplementedException();
         }
 
-        public  Task<T?> BuscarPorId(string id)
+        public  Task<T?> BuscarPorId(int id)
         {
             throw new NotImplementedException();
         }

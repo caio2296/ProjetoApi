@@ -1,13 +1,15 @@
 ﻿using Aplicacao.Interface;
 using Entidades;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Projeto.Controllers
-{
+namespace Projeto.Controllers{
+
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class FrutasController : ControllerBase
     {
         private IFrutasAplicacao _frutasAplicacao;
@@ -34,7 +36,6 @@ namespace Projeto.Controllers
             }
             catch (Exception ex)
             {
-
                 return StatusCode(500, ex.Message);
             }
            
@@ -68,7 +69,7 @@ namespace Projeto.Controllers
         [HttpPut("/api/AtualizarFruta")]
         public async Task<ActionResult> AtualizarFruta([FromBody] Frutas fruta)
         {
-            if (fruta == null || string.IsNullOrEmpty(fruta.Id))
+            if (fruta == null || fruta.Id <= 0)
                 return BadRequest("Objeto fruta inválido ou ID não informado.");
 
             try
@@ -97,9 +98,10 @@ namespace Projeto.Controllers
 
         // DELETE api/<FrutasController>/5
         [HttpDelete("/api/ExcluirFruta")]
+        
         public async Task<ActionResult> Delete([FromBody] Frutas fruta)
         {
-          if (fruta == null || string.IsNullOrEmpty(fruta.Id))
+          if (fruta == null || fruta.Id <= 0)
                 return BadRequest("Objeto fruta inválido ou ID não informado.");
 
             try

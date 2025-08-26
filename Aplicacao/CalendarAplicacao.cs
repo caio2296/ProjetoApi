@@ -31,7 +31,7 @@ namespace Aplicacao
             return await _calendar.BuscarCalendar();
         }
 
-        public Task<CalendarModel> BuscarPorId(string id)
+        public Task<CalendarModel> BuscarPorId(int id)
         {
             throw new NotImplementedException();
         }
