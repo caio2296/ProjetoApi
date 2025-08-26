@@ -36,7 +36,7 @@ namespace Dominio.Servicos
             }
         }
 
-        public async Task<Frutas> BuscarPorId(string id)
+        public async Task<Frutas> BuscarPorId(int id)
         {
             if(id == null)
             {
@@ -47,7 +47,7 @@ namespace Dominio.Servicos
 
         }
 
-        public async Task DeletarFruta(string id)
+        public async Task DeletarFruta(int id)
         {
             await _frutas.DeletarFruta(id);
         }

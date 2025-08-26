@@ -6,7 +6,7 @@ namespace Entidades
     public class Frutas: Notifica
     {
         [Column("SLT_ID")]
-        public string Id { get; set; }
+        public int Id { get; set; }
         [Column("SLT_Descricao")]
         public string? Descricao { get; set; }
         [Column("SLT_Tamanho")]

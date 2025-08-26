@@ -6,8 +6,8 @@ namespace Dominio.Servicos.Interfaces
     {
         Task AdicionarFrutasSemEF(Frutas frutas);
         Task AtualizarFrutaSemEF(Frutas frutas);
-        Task<Frutas> BuscarPorId(string id);
+        Task<Frutas> BuscarPorId(int id);
         Task<List<Frutas>> ListarFrutasSemEF();
-        Task DeletarFruta(string id);
+        Task DeletarFruta(int id);
     }
 }

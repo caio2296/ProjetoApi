@@ -13,10 +13,10 @@ namespace Dominio.Interface
     {
         Task AdicionarFrutasSemEF(Frutas Objeto);
         Task AtualizarFrutaSemEF(Frutas Objeto);
-        Task DeletarFruta(string id);
+        Task DeletarFruta(int id);
         Task<List<Frutas>> ListarFrutasSemEF();
         Task<List<Frutas>> ListarFrutas(Expression<Func<Frutas, bool>> exFrutas);
-        Task<List<Frutas>> ListarFrutasCustomizada(string idUsuario);
-        Task<bool> ExisteFrutas(string idFrutas);
+        Task<List<Frutas>> ListarFrutasCustomizada(int idUsuario);
+        Task<bool> ExisteFrutas(int idFrutas);
     }
 }

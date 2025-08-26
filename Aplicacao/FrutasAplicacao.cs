@@ -32,7 +32,7 @@ namespace Aplicacao
             await _frutasServicos.AtualizarFrutaSemEF(Objeto);
         }
 
-        public async Task<Frutas> BuscarPorId(string id)
+        public async Task<Frutas> BuscarPorId(int id)
         {
             var fruta = await _frutasServicos.BuscarPorId(id);
             if (fruta == null)
@@ -40,7 +40,7 @@ namespace Aplicacao
             return fruta;
         }
 
-        public async Task DeletarFruta(string id)
+        public async Task DeletarFruta(int id)
         {
             await _frutasServicos.DeletarFruta(id);
         }

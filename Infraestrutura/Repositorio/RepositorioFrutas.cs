@@ -27,7 +27,7 @@ namespace Infraestrutura.Repositorio
         //    _optionsBuilder = new DbContextOptions<Contexto>();
         //}
 
-        public async Task<bool> ExisteFrutas(string id)
+        public async Task<bool> ExisteFrutas(int id)
         {
             using (var banco = new Contexto(_optionsBuilder))
             {
@@ -48,7 +48,6 @@ namespace Infraestrutura.Repositorio
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@Id", fruta.Id);
                     cmd.Parameters.AddWithValue("@Descricao", fruta.Descricao);
                     cmd.Parameters.AddWithValue("@Tamanho", fruta.Tamanho);
                     cmd.Parameters.AddWithValue("@Cor", fruta.Cor);
@@ -100,7 +99,7 @@ namespace Infraestrutura.Repositorio
                         {
                             var fruta = new Frutas
                             {
-                                Id = reader.GetString(reader.GetOrdinal("SLT_ID")),
+                                Id = reader.GetInt32(reader.GetOrdinal("SLT_ID")),
                                 Descricao = reader.GetString(reader.GetOrdinal("SLT_Descricao")),
                                 Cor = reader.GetString(reader.GetOrdinal("SLT_Cor")),
                                 Tamanho = reader.GetString(reader.GetOrdinal("SLT_Tamanho"))
@@ -116,7 +115,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public new async Task<Frutas?> BuscarPorId(string id)
+        public new async Task<Frutas?> BuscarPorId(int id)
         {
             const string sql = "SELECT SLT_ID, SLT_Descricao, SLT_Tamanho, SLT_Cor FROM Frutas WHERE SLT_ID = @Id";
 
@@ -133,7 +132,7 @@ namespace Infraestrutura.Repositorio
                     {
                         return new Frutas
                         {
-                            Id = reader["SLT_ID"].ToString(),
+                            Id = int.Parse(reader["SLT_ID"].ToString()),
                             Descricao = reader["SLT_Descricao"].ToString(),
                             Tamanho = reader["SLT_Tamanho"].ToString(),
                             Cor = reader["SLT_Cor"].ToString()
@@ -149,7 +148,7 @@ namespace Infraestrutura.Repositorio
            
         }
 
-        public async Task DeletarFruta(string id)
+        public async Task DeletarFruta(int id)
         {
             const string nomeProcedimento = "DeletarFruta";
 
@@ -175,7 +174,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task<List<Frutas>> ListarFrutasCustomizada(string idFrutas)
+        public async Task<List<Frutas>> ListarFrutasCustomizada(int idFrutas)
         {
             using (var banco = new Contexto(_optionsBuilder))
             {

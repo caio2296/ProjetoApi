@@ -12,7 +12,7 @@ namespace Aplicacao.Interface
     {
         Task AdicionarFrutasSemEF(Frutas Objeto);
         Task AtualizarFrutaSemEF(Frutas Objeto);
-        Task DeletarFruta(string id);
+        Task DeletarFruta(int id);
         Task<List<Frutas>> ListarFrutasSemEF();
     }
 }
