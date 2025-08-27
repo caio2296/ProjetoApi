@@ -130,6 +130,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
+var frontClient = "http://localhost:4200";
+app.UseCors(x =>
+x.AllowAnyMethod()
+.AllowAnyHeader()
+.WithOrigins(frontClient));
+
 var chaveSecreta = "MinhaSuperChaveJWT_Secreta_123456789!";
 app.UseMiddleware<JwtTokenMiddleware>(chaveSecreta, builder.Configuration.GetConnectionString("Default"));
 // Configure the HTTP request pipeline.
@@ -138,13 +144,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-var frontClient = "http://localhost:4200";
-app.UseCors(x =>
-x.AllowAnyOrigin()
-.AllowAnyMethod()
-.AllowAnyHeader()
-.WithOrigins(frontClient));
 
 app.UseHttpsRedirection();
 
