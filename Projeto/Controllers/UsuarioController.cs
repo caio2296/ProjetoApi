@@ -1,7 +1,6 @@
 ﻿using Aplicacao.Interface;
 using Entidades;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Projeto.Model;
@@ -48,7 +47,6 @@ namespace Projeto.Controllers
                 return Conflict("Usuário já cadastrado!");
             }
 
-
             Usuarios usuario = new Usuarios()
             {
                 Email = registro.Email,
@@ -63,7 +61,7 @@ namespace Projeto.Controllers
         [AllowAnonymous]
         [HttpPost("/api/CriarToken")]
         [Produces("application/json")]
-        public async Task<ActionResult<Usuarios>> CriarToken([FromBody] LoginDto login)
+        public async Task<ActionResult<string>> CriarToken([FromBody] LoginDto login)
         {
             if (string.IsNullOrWhiteSpace(login.Email))
                 return Ok("Falta alguns dados");
@@ -74,22 +72,15 @@ namespace Projeto.Controllers
             }
 
             var usuarioId = await _usuarioAplicacao.RetornarIdUsuario(login.Email);
-            var usuarioTipo = await _usuarioAplicacao.RetornarTipoUsuario(login.Email);
-            if (usuarioId == null || usuarioTipo == null)
+            var UsuarioTipo = await _usuarioAplicacao.RetornarTipoUsuario(login.Email);
+            if (usuarioId == null || UsuarioTipo == null)
                 return Unauthorized(" Usuario não autorizado, verifique seu email!"); 
 
-            var token = _tokenJwtBuilder.GerarTokenJwt(usuarioId.ToString(),usuarioTipo);
+            var token = _tokenJwtBuilder.GerarTokenJwt(usuarioId.ToString(),UsuarioTipo, login.Email);
 
             await _usuarioAplicacao.AtualizaToken(usuarioId, token.value);
             //token.value
-            Usuarios usuario = new Usuarios()
-            {
-                Id = usuarioId,
-                Email = login.Email,
-                TokenJWT = token.value,
-                TipoUsuario = usuarioTipo
-            };
-            return Ok(usuario); 
+            return Ok(token.value); 
         }
 
         // PUT api/<UsuarioController>/5

@@ -12,6 +12,6 @@ namespace Entidades
         public int Id { get; set; }
         public string Email { get; set; }
         public string TokenJWT { get; set; }
-        public string TipoUsuario { get; set; } = "comum"; // Default 'comum'
+        public string UsuarioTipo { get; set; } = "comum"; // Default 'comum'
     }
 }
