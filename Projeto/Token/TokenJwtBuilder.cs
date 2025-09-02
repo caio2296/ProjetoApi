@@ -88,7 +88,7 @@ namespace Projeto.Token
         }
 
 
-        public TokenJWT GerarTokenJwt(string idUsuario, string usuarioTipo)
+        public TokenJWT GerarTokenJwt(string idUsuario, string UsuarioTipo, string Email)
         {
             return new TokenJwtBuilder()
                 .AddSecurityKey(JwtSecurityKey.Creater("MinhaSuperChaveJWT_Secreta_123456789!"))
@@ -96,7 +96,8 @@ namespace Projeto.Token
                 .AddIssuer("Security.Bearer")
                 .AddAudience("Security.Bearer")
                 .AddClaim("idUsuario", idUsuario)
-                .AddClaim("UsuarioTipo", usuarioTipo)
+                .AddClaim("UsuarioTipo", UsuarioTipo)
+                .AddClaim("Email",Email)
                 .AddClaim(ClaimTypes.NameIdentifier, idUsuario)
                 .AddExpiry(30) // Expiração do token em 5 minutos
                 .Builder();
