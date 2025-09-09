@@ -42,9 +42,9 @@ namespace Aplicacao
             throw new NotImplementedException();
         }
 
-        public Task<List<Usuarios>> ListarUsuariosSemEF()
+        public async Task<List<Usuarios>> ListarUsuariosSemEF(int id)
         {
-            throw new NotImplementedException();
+            return await _usuario.ListarUsuariosSemEF(id); 
         }
 
         public async Task<int> RetornarIdUsuario(string email)

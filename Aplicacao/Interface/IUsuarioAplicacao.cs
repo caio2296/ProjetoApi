@@ -13,7 +13,7 @@ namespace Aplicacao.Interface
         Task AdicionarUsuarioSemEF(Usuarios Objeto);
         Task AtualizarUsuarioSemEF(Usuarios Objeto);
         Task DeletarUsuario(int id);
-        Task<List<Usuarios>> ListarUsuariosSemEF();
+        Task<List<Usuarios>> ListarUsuariosSemEF(int id);
         Task<List<Usuarios>> ListarUsuarios(Expression<Func<Usuarios, bool>> exUsuarios);
         Task<List<Usuarios>> ListarUsuariosCustomizada(string idUsuario);
         Task<bool> ExisteUsuario(string email);

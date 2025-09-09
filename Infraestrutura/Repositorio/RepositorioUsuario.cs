@@ -140,9 +140,41 @@ namespace Infraestrutura.Repositorio
             throw new NotImplementedException();
         }
 
-        public Task<List<Usuarios>> ListarUsuariosSemEF()
+        public async Task<List<Usuarios>> ListarUsuariosSemEF(int id)
         {
-            throw new NotImplementedException();
+            var lista = new List<Usuarios>();
+            const string nomeProcedimento = "ListarUsuariosExcetoId";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+
+                using (var cmd = new SqlCommand(nomeProcedimento, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Id", id);
+
+                    await conn.OpenAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var usuario = new Usuarios
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Email = reader.IsDBNull(reader.GetOrdinal("Email"))
+                                             ? string.Empty
+            :                                  reader.GetString(reader.GetOrdinal("Email")),
+                                UsuarioTipo = reader.GetString(reader.GetOrdinal("TipoUsuario"))
+                            };
+
+                            lista.Add(usuario);
+                        }
+
+                        return lista;
+
+                    }
+                }
+            }
         }
 
         public async Task<string> RetornarTipoUsuario(string email)
@@ -163,5 +195,6 @@ namespace Infraestrutura.Repositorio
                 }
             }
         }
+
     }
 }
