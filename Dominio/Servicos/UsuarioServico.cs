@@ -45,9 +45,9 @@ namespace Dominio.Servicos
             await _usuario.DeletarUsuario(id);
         }
 
-        public async Task<List<Usuarios>> ListarUsuariosSemEF()
+        public async Task<List<Usuarios>> ListarUsuariosSemEF(int id)
         {
-            var listaUsuarios = await _usuario.ListarUsuariosSemEF();
+            var listaUsuarios = await _usuario.ListarUsuariosSemEF(id);
 
             if (listaUsuarios == null)
             {

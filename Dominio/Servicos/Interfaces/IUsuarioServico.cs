@@ -13,7 +13,7 @@ namespace Dominio.Servicos.Interfaces
         Task AdicionarUsarioSemEF(Usuarios usuarios);
         Task AtualizarUsuarioSemEF(Usuarios usuarios);
         Task<Usuarios> BuscarPorId(int id);
-        Task<List<Usuarios>> ListarUsuariosSemEF();
+        Task<List<Usuarios>> ListarUsuariosSemEF(int id);
         Task DeletarUsuario(int id);
     }
 }

@@ -21,19 +21,6 @@ namespace Projeto.Controllers
             _usuarioAplicacao = usuarioAplicacao;
             _tokenJwtBuilder = tokenJwtBuilder;
         }
-        //// GET: api/<UsuarioController>
-        //[HttpGet]
-        //public IEnumerable<string> Get()
-        //{
-        //    return new string[] { "value1", "value2" };
-        //}
-
-        //// GET api/<UsuarioController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
 
         [Authorize(Policy = "RequireAdministratorRole")]
         [Produces("application/json")]
@@ -83,15 +70,9 @@ namespace Projeto.Controllers
             return Ok(token.value); 
         }
 
-        // PUT api/<UsuarioController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<UsuarioController>/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [Authorize(Policy = "RequireAdministratorRole")]
+        [HttpDelete("/api/DeleteUsuario")]
+        public async Task<IActionResult> DeleteUsuario([FromBody] int id)
         {
             if (id <= 0)
                 return BadRequest("Id inválido!");
@@ -110,6 +91,24 @@ namespace Projeto.Controllers
             {
               return StatusCode(500, ex.Message);
             }
+        }
+
+        [Authorize(Policy = "RequireAdministratorRole")]
+        [HttpGet("/api/ListarUsuario")]
+        public async Task<ActionResult<List<UsuarioDto>>> ListarUsario()
+        {
+            // recupera o ID do usuário logado
+            var userId = User.FindFirst("idUsuario")?.Value;
+
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Usuário não autenticado");
+
+            // chama a aplicação passando o id
+            var usuarios= await _usuarioAplicacao.ListarUsuariosSemEF(int.Parse(userId));
+
+            List<UsuarioDto> usuariosDto = usuarios.Select(u => (UsuarioDto)u).ToList();
+            return Ok(usuariosDto);
         }
     }
 }

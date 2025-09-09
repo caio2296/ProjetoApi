@@ -68,15 +68,6 @@ namespace Infraestrutura.Repositorio.Generico
             }
         }
 
-        //public async Task<T?> BuscarPorId(string id)
-        //{
-        //    using (var data = new Contexto(_optionBuilder))
-        //    {
-        //        return await data.Set<T>()
-        //            .FindAsync(id);
-        //    }
-        //}
-
 
         public async Task Excluir(T Objeto)
         {
