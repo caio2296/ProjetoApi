@@ -16,11 +16,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-//builder.Services.AddDbContext<Contexto>(options =>
-//            options.UseSqlServer(
-//                 builder.Configuration.GetConnectionString("Default")));
-
-
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 
@@ -125,8 +120,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-
-
 
 var app = builder.Build();
 

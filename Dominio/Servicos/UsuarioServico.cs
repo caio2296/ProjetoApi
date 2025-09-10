@@ -17,7 +17,7 @@ namespace Dominio.Servicos
             var validarEmail = usuarios.ValidarPropriedadeString(usuarios.Email, "Email");
             if (validarEmail)
             {
-             await _usuario.AdicionarUsuarioSemEF(usuarios);
+             await _usuario.AdicionarUsuario(usuarios);
             }
         }
 
@@ -26,7 +26,7 @@ namespace Dominio.Servicos
             var validarEmail = usuarios.ValidarPropriedadeString(usuarios.Email, "Email");
             if (validarEmail)
             {
-                await _usuario.AtualizarUsuarioSemEF(usuarios);
+                await _usuario.AtualizarUsuario(usuarios);
             }
         }
 
@@ -47,7 +47,7 @@ namespace Dominio.Servicos
 
         public async Task<List<Usuarios>> ListarUsuariosSemEF(int id)
         {
-            var listaUsuarios = await _usuario.ListarUsuariosSemEF(id);
+            var listaUsuarios = await _usuario.ListarUsuariosAdm(id);
 
             if (listaUsuarios == null)
             {

@@ -14,7 +14,7 @@ namespace Infraestrutura.Repositorio
         {
                 _connectionString = connectionString;
         }
-        public async Task AdicionarUsuarioSemEF(Usuarios usuario)
+        public async Task AdicionarUsuario(Usuarios usuario)
         {
             string nomeProcedimento = "AdicionarUsuario";
 
@@ -32,7 +32,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task AtualizarUsuarioSemEF(Usuarios usuario)
+        public async Task AtualizarUsuario(Usuarios usuario)
         {
             string nomeProcedimento = "AtualizarUsuario";
 
@@ -92,8 +92,6 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-
-
         public async Task<int> RetornarIdUsuario(string email)
         {
             const string nomeProcedimento = "SelecionarUsuario";
@@ -140,7 +138,7 @@ namespace Infraestrutura.Repositorio
             throw new NotImplementedException();
         }
 
-        public async Task<List<Usuarios>> ListarUsuariosSemEF(int id)
+        public async Task<List<Usuarios>> ListarUsuariosAdm(int id)
         {
             var lista = new List<Usuarios>();
             const string nomeProcedimento = "ListarUsuariosExcetoId";

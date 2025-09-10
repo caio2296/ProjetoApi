@@ -22,10 +22,6 @@ namespace Infraestrutura.Repositorio
         {
             _connectionString = connectionString;
         }
-        //public RepositorioFrutas()
-        //{
-        //    _optionsBuilder = new DbContextOptions<Contexto>();
-        //}
 
         public async Task<bool> ExisteFrutas(int id)
         {
@@ -38,7 +34,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public new async Task AdicionarFrutasSemEF(Frutas fruta)
+        public new async Task AdicionarFruta(Frutas fruta)
         {
             string nomeProcedimento = "AdicionarFruta";
 
@@ -58,7 +54,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public new async Task AtualizarFrutaSemEF(Frutas fruta)
+        public new async Task AtualizarFruta(Frutas fruta)
         {
             string nomeProcedimento = "AtualizarFruta";
 
@@ -82,7 +78,7 @@ namespace Infraestrutura.Repositorio
 
         // Adicionar a lista de fruta e byid sem o ef 
 
-        public new async Task<List<Frutas>> ListarFrutasSemEF()
+        public new async Task<List<Frutas>> ListarFrutas()
         {
             var lista = new List<Frutas>();
             string nomeProcedimento = "ListarFrutas";
@@ -138,14 +134,9 @@ namespace Infraestrutura.Repositorio
                             Cor = reader["SLT_Cor"].ToString()
                         };
                     }
-
                     return null;
                 }
-
-            }
-
-
-           
+            }  
         }
 
         public async Task DeletarFruta(int id)
@@ -163,10 +154,9 @@ namespace Infraestrutura.Repositorio
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
-
         }
 
-        public async Task<List<Frutas>> ListarFrutas(Expression<Func<Frutas, bool>> exFrutas)
+        public async Task<List<Frutas>> ListarFrutasEx(Expression<Func<Frutas, bool>> exFrutas)
         {
             using (var banco = new Contexto(_optionsBuilder))
             {

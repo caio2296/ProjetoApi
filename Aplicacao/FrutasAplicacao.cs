@@ -55,9 +55,9 @@ namespace Aplicacao
             throw new NotImplementedException();
         }
 
-        public async Task<List<Frutas>> ListarFrutasSemEF()
+        public async Task<List<Frutas>> ListarFrutas()
         {
-            return await _frutasServicos.ListarFrutasSemEF();
+            return await _frutasServicos.ListarFrutas();
         }
     }
 }

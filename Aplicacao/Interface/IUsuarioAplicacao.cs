@@ -10,10 +10,10 @@ namespace Aplicacao.Interface
 {
     public interface IUsuarioAplicacao
     {
-        Task AdicionarUsuarioSemEF(Usuarios Objeto);
-        Task AtualizarUsuarioSemEF(Usuarios Objeto);
+        Task AdicionarUsuario(Usuarios Objeto);
+        Task AtualizarUsuario(Usuarios Objeto);
         Task DeletarUsuario(int id);
-        Task<List<Usuarios>> ListarUsuariosSemEF(int id);
+        Task<List<Usuarios>> ListarUsuariosAdm(int id);
         Task<List<Usuarios>> ListarUsuarios(Expression<Func<Usuarios, bool>> exUsuarios);
         Task<List<Usuarios>> ListarUsuariosCustomizada(string idUsuario);
         Task<bool> ExisteUsuario(string email);

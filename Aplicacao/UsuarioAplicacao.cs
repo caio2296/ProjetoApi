@@ -12,14 +12,14 @@ namespace Aplicacao
         {
                 _usuario = usuario;
         }
-        public async Task AdicionarUsuarioSemEF(Usuarios Objeto)
+        public async Task AdicionarUsuario(Usuarios Objeto)
         {
-           await _usuario.AdicionarUsuarioSemEF(Objeto);
+           await _usuario.AdicionarUsuario(Objeto);
         }
 
-        public async Task AtualizarUsuarioSemEF(Usuarios Objeto)
+        public async Task AtualizarUsuario(Usuarios Objeto)
         {
-            await _usuario.AtualizarUsuarioSemEF(Objeto);
+            await _usuario.AtualizarUsuario(Objeto);
         }
 
         public async Task DeletarUsuario(int id)
@@ -42,9 +42,9 @@ namespace Aplicacao
             throw new NotImplementedException();
         }
 
-        public async Task<List<Usuarios>> ListarUsuariosSemEF(int id)
+        public async Task<List<Usuarios>> ListarUsuariosAdm(int id)
         {
-            return await _usuario.ListarUsuariosSemEF(id); 
+            return await _usuario.ListarUsuariosAdm(id); 
         }
 
         public async Task<int> RetornarIdUsuario(string email)
