@@ -24,7 +24,7 @@ namespace Projeto.Controllers{
         {
             try
             {
-                var frutas = await _frutasAplicacao.ListarFrutasSemEF();
+                var frutas = await _frutasAplicacao.ListarFrutas();
                 if (frutas == null || frutas.Count == 0)
                     return NotFound("Nenhuma fruta encontrada.");
 
@@ -98,7 +98,6 @@ namespace Projeto.Controllers{
 
         // DELETE api/<FrutasController>/5
         [HttpDelete("/api/ExcluirFruta")]
-        
         public async Task<ActionResult> Delete([FromBody] Frutas fruta)
         {
           if (fruta == null || fruta.Id <= 0)
@@ -111,7 +110,7 @@ namespace Projeto.Controllers{
                     return NotFound($"Fruta com ID {fruta.Id} não encontrada.");
 
                 await _frutasAplicacao.DeletarFruta(fruta.Id);
-                return Ok();
+                return Ok("A Fruta selecionada foi deletada com sucesso!");
             }
             catch (ArgumentException ex)
             {

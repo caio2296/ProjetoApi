@@ -39,7 +39,7 @@ namespace Projeto.Controllers
                 Email = registro.Email,
             };
 
-            await _usuarioAplicacao.AdicionarUsuarioSemEF(usuario);
+            await _usuarioAplicacao.AdicionarUsuario(usuario);
 
             return Ok("Usuário Adicionado com Sucesso!");
 
@@ -76,7 +76,6 @@ namespace Projeto.Controllers
         {
             if (id <= 0)
                 return BadRequest("Id inválido!");
-
             try
             {
                 await _usuarioAplicacao.DeletarUsuario(id);
@@ -105,7 +104,7 @@ namespace Projeto.Controllers
                 return Unauthorized("Usuário não autenticado");
 
             // chama a aplicação passando o id
-            var usuarios= await _usuarioAplicacao.ListarUsuariosSemEF(int.Parse(userId));
+            var usuarios= await _usuarioAplicacao.ListarUsuariosAdm(int.Parse(userId));
 
             List<UsuarioDto> usuariosDto = usuarios.Select(u => (UsuarioDto)u).ToList();
             return Ok(usuariosDto);

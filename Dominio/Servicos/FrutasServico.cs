@@ -22,7 +22,7 @@ namespace Dominio.Servicos
             var validarTamanho = frutas.ValidarPropriedadeString(frutas.Tamanho, "Tamanho");
             if (validarDescricao && validarTamanho)
             {
-                await _frutas.AdicionarFrutasSemEF(frutas);
+                await _frutas.AdicionarFruta(frutas);
             }
         }
 
@@ -32,7 +32,7 @@ namespace Dominio.Servicos
             var validarTamanho = frutas.ValidarPropriedadeString(frutas.Tamanho, "Tamanho");
             if (validarDescricao && validarTamanho)
             {
-                await _frutas.AtualizarFrutaSemEF(frutas);
+                await _frutas.AtualizarFruta(frutas);
             }
         }
 
@@ -52,9 +52,9 @@ namespace Dominio.Servicos
             await _frutas.DeletarFruta(id);
         }
 
-        public async Task<List<Frutas>> ListarFrutasSemEF()
+        public async Task<List<Frutas>> ListarFrutas()
         {
-            var listaFrutas =  await _frutas.ListarFrutasSemEF();
+            var listaFrutas =  await _frutas.ListarFrutas();
 
             if (listaFrutas == null)
             {
