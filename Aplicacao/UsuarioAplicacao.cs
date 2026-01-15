@@ -1,5 +1,6 @@
 ﻿using Aplicacao.Interface;
 using Dominio.Interface;
+using Dominio.Servicos.Interfaces;
 using Entidades;
 using System.Linq.Expressions;
 
@@ -7,19 +8,19 @@ namespace Aplicacao
 {
     public class UsuarioAplicacao : IUsuarioAplicacao
     {
-        private IUsuario _usuario;
-        public UsuarioAplicacao(IUsuario usuario)
+        private IUsuarioServico _usuario;
+        public UsuarioAplicacao(IUsuarioServico usuario)
         {
                 _usuario = usuario;
         }
         public async Task AdicionarUsuario(Usuarios Objeto)
         {
-           await _usuario.AdicionarUsuario(Objeto);
+           await _usuario.AdicionarUsarioSemEF(Objeto);
         }
 
         public async Task AtualizarUsuario(Usuarios Objeto)
         {
-            await _usuario.AtualizarUsuario(Objeto);
+            await _usuario.AtualizarUsuarioSemEF(Objeto);
         }
 
         public async Task DeletarUsuario(int id)
@@ -54,12 +55,13 @@ namespace Aplicacao
 
         public async Task  AtualizaToken(int idUsuario, string token)
         {
-            await _usuario.AtualizarToken(idUsuario,token);
+            await _usuario.AtualizaToken(idUsuario,token);
         }
 
         public Task<string> RetornarTipoUsuario(string email)
         {
             return _usuario.RetornarTipoUsuario(email);
         }
+
     }
 }

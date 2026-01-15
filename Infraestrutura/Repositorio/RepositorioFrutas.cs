@@ -5,10 +5,7 @@ using Infraestrutura.Repositorio.Generico;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using System.Globalization;
 using System.Linq.Expressions;
-using System.Numerics;
-using System.Text.Json;
 
 namespace Infraestrutura.Repositorio
 {

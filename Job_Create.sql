@@ -28,3 +28,6 @@ EXEC sp_attach_schedule
 EXEC sp_add_jobserver
     @job_name = N'Job_AnularTodosTokens';
 GO
+
+
+select * from Usuarios

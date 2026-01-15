@@ -17,7 +17,7 @@ namespace Infraestrutura.Repositorio.Generico
 
             //.UseMySql("Server=localhost;DataBase=autoregistro;Uid=root;Pwd=zxcasd384!A",
             // new MySqlServerVersion(new Version(8, 0, 37)))
-            .UseSqlServer("Server=REUNIAOJANUSRJ;Database=projeto;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;")
+            .UseSqlServer("Data Source=REUNIAOJANUSRJ\\MSSQLSERVER01;Initial Catalog=projeto;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False;")
             .Options;
         }
 

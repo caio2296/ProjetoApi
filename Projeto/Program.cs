@@ -18,7 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-
 builder.Services.AddScoped<IFrutas>(provider =>
     new RepositorioFrutas(
         provider.GetRequiredService<IConfiguration>()
@@ -34,14 +33,23 @@ builder.Services.AddScoped<IUsuario>(provider =>
         provider.GetRequiredService<IConfiguration>()
                   .GetConnectionString("Default")!));
 
+builder.Services.AddScoped<IFiltros>(provider =>
+    new RepositorioFiltro(
+        provider.GetRequiredService<IConfiguration>()
+                  .GetConnectionString("Default")!));
+
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IFiltroAplicacao, FiltroAplicacao>();
 
 builder.Services.AddScoped<IUsuarioAplicacao, UsuarioAplicacao>();
 builder.Services.AddScoped<ICalendarAplicacao, CalendarAplicacao>();
 builder.Services.AddScoped<IFrutasAplicacao, FrutasAplicacao>();
 builder.Services.AddScoped<TokenJwtBuilder>();
 
+builder.Services.AddScoped<IFiltrosServicos, FiltrosServico>();
 builder.Services.AddScoped<IFrutasServicos, FrutasServico>();
+builder.Services.AddScoped<IUsuarioServico, UsuarioServico>();
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
 
@@ -53,8 +61,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("UsuarioTipo", "adm");
     });
 });
-
-
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -133,7 +139,7 @@ var chaveSecreta = "MinhaSuperChaveJWT_Secreta_123456789!";
 app.UseMiddleware<JwtTokenMiddleware>(chaveSecreta, builder.Configuration.GetConnectionString("Default"));
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
-{
+{ 
     app.UseSwagger();
     app.UseSwaggerUI();
 }
