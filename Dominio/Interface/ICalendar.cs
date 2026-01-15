@@ -1,6 +1,5 @@
 ﻿using Dominio.Interface.Generico;
 using Entidades;
-using System.Linq.Expressions;
 
 namespace Dominio.Interface
 {

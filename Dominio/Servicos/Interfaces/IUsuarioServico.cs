@@ -1,10 +1,4 @@
-﻿using Dominio.Interface;
-using Entidades;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entidades;
 
 namespace Dominio.Servicos.Interfaces
 {
@@ -15,5 +9,10 @@ namespace Dominio.Servicos.Interfaces
         Task<Usuarios> BuscarPorId(int id);
         Task<List<Usuarios>> ListarUsuariosSemEF(int id);
         Task DeletarUsuario(int id);
+        Task<bool> ExisteUsuario(string email);
+        Task<List<Usuarios>> ListarUsuariosAdm(int id);
+        Task<int> RetornarIdUsuario(string email);
+        Task AtualizaToken(int idUsuario, string token);
+        Task<string> RetornarTipoUsuario(string email);
     }
 }
