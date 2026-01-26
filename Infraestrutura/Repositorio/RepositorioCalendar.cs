@@ -10,6 +10,13 @@ namespace Infraestrutura.Repositorio
     public class RepositorioCalendar:RepositorioGenerico<CalendarModel>, ICalendar
     {
         private readonly string _connectionString;
+
+        private static readonly JsonSerializerOptions _jsonOptions =
+                                        new()
+                                        {
+                                            PropertyNameCaseInsensitive = true
+                                        };
+
         public RepositorioCalendar(string connection)
         {
             _connectionString = connection;
@@ -34,7 +41,7 @@ namespace Infraestrutura.Repositorio
                     if (resultado != null && resultado != DBNull.Value)
                     {
                         string json = Convert.ToString(resultado);
-                        calendar = JsonSerializer.Deserialize<CalendarModel>(json);
+                        calendar = JsonSerializer.Deserialize<CalendarModel>(json, _jsonOptions);
                     }
                     return calendar;
                 }

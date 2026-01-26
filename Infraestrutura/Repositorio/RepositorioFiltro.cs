@@ -21,7 +21,7 @@ namespace Infraestrutura.Repositorio
             using (var command = new SqlCommand("dbo.sp_MontaJsonComPai", conn))
             {
                 command.CommandType = CommandType.StoredProcedure;
-                //command.Parameters.AddWithValue("@rootId", 77);
+
 
                 command.Parameters.AddWithValue("@rootId", id);
 

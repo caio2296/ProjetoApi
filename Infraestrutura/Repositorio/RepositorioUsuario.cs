@@ -138,6 +138,38 @@ namespace Infraestrutura.Repositorio
             throw new NotImplementedException();
         }
 
+        public async Task<Usuarios> RetornarUsuarioEmail(string email)
+        {
+            const string nomeProcedimento = "RetornarUsuarioEmail";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand(nomeProcedimento, conn))
+                {
+                    cmd.CommandType= CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Email",email);
+
+                    await conn.OpenAsync();
+                    using var reader = await cmd.ExecuteReaderAsync();
+
+                    if (!reader.HasRows)
+                        return null;
+
+                    await reader.ReadAsync();
+
+                    return new Usuarios
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                        Email = reader.GetString(reader.GetOrdinal("Email")),
+                        UsuarioTipo = reader.GetString(reader.GetOrdinal("TipoUsuario")),
+                        TokenJWT = reader.IsDBNull(reader.GetOrdinal("TokenJWT"))
+                                    ? null
+                                    : reader.GetString(reader.GetOrdinal("TokenJWT"))
+                    };
+                }
+            }
+        }
+
         public async Task<List<Usuarios>> ListarUsuariosAdm(int id)
         {
             var lista = new List<Usuarios>();

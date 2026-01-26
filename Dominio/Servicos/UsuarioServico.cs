@@ -109,5 +109,14 @@ namespace Dominio.Servicos
             }
             return await _usuario.RetornarTipoUsuario(email);
         }
+
+        public async Task<Usuarios> RetornarUsuarioEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return null;
+            }
+            return await _usuario.RetornarUsuarioEmail(email);
+        }
     }
 }

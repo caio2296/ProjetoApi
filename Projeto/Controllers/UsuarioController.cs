@@ -53,19 +53,29 @@ namespace Projeto.Controllers
             if (string.IsNullOrWhiteSpace(login.Email))
                 return Ok("Falta alguns dados");
 
-            if (!await _usuarioAplicacao.ExisteUsuario(login.Email))
-            {
+            //if (!await _usuarioAplicacao.ExisteUsuario(login.Email))
+            //{
+            //    return BadRequest("Não foi possivel encontrar o Usuario!");
+            //}
+
+            //var usuarioId = await _usuarioAplicacao.RetornarIdUsuario(login.Email);
+            //var UsuarioTipo = await _usuarioAplicacao.RetornarTipoUsuario(login.Email);
+            //if (usuarioId == null || UsuarioTipo == null)
+            //    return Unauthorized(" Usuario não autorizado, verifique seu email!"); 
+
+            var usuario = await _usuarioAplicacao.RetornarUsuarioEmail(login.Email);
+
+            if (usuario == null)
                 return BadRequest("Não foi possivel encontrar o Usuario!");
-            }
 
-            var usuarioId = await _usuarioAplicacao.RetornarIdUsuario(login.Email);
-            var UsuarioTipo = await _usuarioAplicacao.RetornarTipoUsuario(login.Email);
-            if (usuarioId == null || UsuarioTipo == null)
-                return Unauthorized(" Usuario não autorizado, verifique seu email!"); 
+            if(usuario.Id.ToString()==null || usuario.UsuarioTipo==null)
+                 return Unauthorized(" Usuario não autorizado, verifique seu email!");
 
-            var token = _tokenJwtBuilder.GerarTokenJwt(usuarioId.ToString(),UsuarioTipo, login.Email);
+            //var token = _tokenJwtBuilder.GerarTokenJwt(usuarioId.ToString(),UsuarioTipo, login.Email);
 
-            await _usuarioAplicacao.AtualizaToken(usuarioId, token.value);
+            var token = _tokenJwtBuilder.GerarTokenJwt(usuario.Id.ToString(), usuario.UsuarioTipo, login.Email);
+
+            await _usuarioAplicacao.AtualizaToken(usuario.Id, token.value);
             //token.value
             return Ok(token.value); 
         }

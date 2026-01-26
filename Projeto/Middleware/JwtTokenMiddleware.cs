@@ -1,7 +1,8 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using Projeto.Token;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 
 public class JwtTokenMiddleware
@@ -9,12 +10,14 @@ public class JwtTokenMiddleware
     private readonly RequestDelegate _next;
     private readonly string _chaveSecreta;
     private readonly string _connectionString;
+    private readonly ILogger<JwtTokenMiddleware> _logger;
 
-    public JwtTokenMiddleware(RequestDelegate next, string chaveSecreta, string connectionString)
+    public JwtTokenMiddleware(RequestDelegate next, string chaveSecreta, string connectionString, ILogger<JwtTokenMiddleware> logger)
     {
         _next = next;
         _chaveSecreta = chaveSecreta;
         _connectionString = connectionString;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -25,6 +28,15 @@ public class JwtTokenMiddleware
             await _next(context);
             return;
         }
+
+        var stopwatch = Stopwatch.StartNew();
+
+        _logger.LogInformation(
+            "Início da request {Method} {Path}",
+            context.Request.Method,
+            context.Request.Path
+        );
+
 
         var token = context.Request.Headers["authorization"].FirstOrDefault()?.Split(" ").Last();
 
@@ -51,20 +63,61 @@ public class JwtTokenMiddleware
                 // Verificação do token no banco
                 if (!await TokenValidoNoBanco(usuarioId, token))
                 {
+
+                    _logger.LogWarning(
+                   "Token inválido no banco para o usuário {UsuarioId}",
+                   usuarioId
+               );
+
                     context.Response.StatusCode = 401;
                     await context.Response.WriteAsync("Token inválido ou expirado no banco.");
                     return;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+
+                _logger.LogError(
+               ex,
+               "Erro ao validar token na rota {Path}",
+               context.Request.Path
+           );
+
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("Token inválido.");
                 return;
             }
+            finally
+            {
+                stopwatch.Stop();
+
+                _logger.LogInformation(
+                    "Fim da request {Method} {Path} - Status {StatusCode} - Tempo {Elapsed}ms",
+                    context.Request.Method,
+                    context.Request.Path,
+                    context.Response.StatusCode,
+                    stopwatch.ElapsedMilliseconds
+                );
+            }
         }
         else
         {
+            _logger.LogWarning(
+               "Requisição sem token na rota {Path}",
+               context.Request.Path
+           );
+
+            stopwatch.Stop();
+
+            _logger.LogInformation(
+                "Fim da request {Method} {Path} - Status {StatusCode} - Tempo {Elapsed}ms",
+                context.Request.Method,
+                context.Request.Path,
+                context.Response.StatusCode,
+                stopwatch.ElapsedMilliseconds
+            );
+
+
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Token não fornecido.");
             return;
