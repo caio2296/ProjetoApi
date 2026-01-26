@@ -14,5 +14,6 @@ namespace Dominio.Servicos.Interfaces
         Task<int> RetornarIdUsuario(string email);
         Task AtualizaToken(int idUsuario, string token);
         Task<string> RetornarTipoUsuario(string email);
+        Task<Usuarios> RetornarUsuarioEmail(string email);
     }
 }

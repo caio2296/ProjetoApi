@@ -1,5 +1,7 @@
 ﻿using Entidades;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 namespace Infraestrutura.Configuracao
 {
@@ -7,7 +9,7 @@ namespace Infraestrutura.Configuracao
     {
 
 
-        public Contexto (DbContextOptions<Contexto> options) : base(options) { }
+        public Contexto(DbContextOptions<Contexto> options) : base(options) { }
 
         public DbSet<Frutas> Frutas { get; set; }
 
@@ -15,7 +17,7 @@ namespace Infraestrutura.Configuracao
         {
             if (!optionsBuilder.IsConfigured)
             {
-                
+
                 optionsBuilder.UseSqlServer(ObterStringConexao());
             }
 

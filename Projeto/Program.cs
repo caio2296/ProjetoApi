@@ -10,11 +10,33 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Projeto.Middleware;
 using Projeto.Token;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+        "logs/api-.log",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7
+    )
+    .WriteTo.File(
+        "Logs/memory-log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7
+    )
+    .CreateLogger();
+
+
+
+builder.Host.UseSerilog();
+
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
@@ -40,6 +62,8 @@ builder.Services.AddScoped<IFiltros>(provider =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddScoped<IFiltroAplicacao, FiltroAplicacao>();
 
 builder.Services.AddScoped<IUsuarioAplicacao, UsuarioAplicacao>();
@@ -50,6 +74,7 @@ builder.Services.AddScoped<TokenJwtBuilder>();
 builder.Services.AddScoped<IFiltrosServicos, FiltrosServico>();
 builder.Services.AddScoped<IFrutasServicos, FrutasServico>();
 builder.Services.AddScoped<IUsuarioServico, UsuarioServico>();
+builder.Services.AddScoped<ICalendarService, CalendarService>();
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
 
@@ -137,6 +162,8 @@ x.AllowAnyMethod()
 
 var chaveSecreta = "MinhaSuperChaveJWT_Secreta_123456789!";
 app.UseMiddleware<JwtTokenMiddleware>(chaveSecreta, builder.Configuration.GetConnectionString("Default"));
+app.UseMiddleware<MemoryLoggingMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 { 

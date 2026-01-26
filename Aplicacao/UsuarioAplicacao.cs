@@ -63,5 +63,10 @@ namespace Aplicacao
             return _usuario.RetornarTipoUsuario(email);
         }
 
+        public Task<Usuarios> RetornarUsuarioEmail(string email)
+        {
+            return _usuario.RetornarUsuarioEmail(email);
+        }
+
     }
 }
