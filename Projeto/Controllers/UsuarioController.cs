@@ -1,5 +1,7 @@
 ﻿using Aplicacao.Interface;
+using Dominio.Interface;
 using Entidades;
+using Entidades.SendEmail;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -16,10 +18,12 @@ namespace Projeto.Controllers
     {
         private readonly IUsuarioAplicacao _usuarioAplicacao;
         private readonly TokenJwtBuilder _tokenJwtBuilder;
-        public UsuarioController(IUsuarioAplicacao usuarioAplicacao, TokenJwtBuilder tokenJwtBuilder)
+        private ISendEmailAplicacao _sendEmailAplicacao;
+        public UsuarioController(IUsuarioAplicacao usuarioAplicacao, TokenJwtBuilder tokenJwtBuilder, ISendEmailAplicacao sendEmailAplicacao)
         {
             _usuarioAplicacao = usuarioAplicacao;
             _tokenJwtBuilder = tokenJwtBuilder;
+            _sendEmailAplicacao = sendEmailAplicacao;
         }
 
         [Authorize(Policy = "RequireAdministratorRole")]
@@ -27,22 +31,30 @@ namespace Projeto.Controllers
         [HttpPost("/api/RegistrarUsuario")]
         public async Task<IActionResult> RegistrarUsuario([FromBody] LoginDto registro)
         {
-            if (string.IsNullOrWhiteSpace(registro.Email))
-                return Ok("Falta alguns dados");
-            if (await _usuarioAplicacao.ExisteUsuario(registro.Email))
+            try
             {
-                return Conflict("Usuário já cadastrado!");
+                if (string.IsNullOrWhiteSpace(registro.Email))
+                    return Ok("Falta alguns dados");
+                if (await _usuarioAplicacao.ExisteUsuario(registro.Email))
+                {
+                    return Conflict("Usuário já cadastrado!");
+                }
+
+                Usuarios usuario = new Usuarios()
+                {
+                    Email = registro.Email,
+                };
+
+                await _sendEmailAplicacao.EnviarEmailAsync(usuario);
+
+                await _usuarioAplicacao.AdicionarUsuario(usuario);
+
+                return Ok("Usuário Adicionado com Sucesso!");
             }
-
-            Usuarios usuario = new Usuarios()
+            catch (Exception ex)
             {
-                Email = registro.Email,
-            };
-
-            await _usuarioAplicacao.AdicionarUsuario(usuario);
-
-            return Ok("Usuário Adicionado com Sucesso!");
-
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [AllowAnonymous]
@@ -50,44 +62,54 @@ namespace Projeto.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<string>> CriarToken([FromBody] LoginDto login)
         {
-            if (string.IsNullOrWhiteSpace(login.Email))
-                return Ok("Falta alguns dados");
+            try
+            {
+                if (string.IsNullOrWhiteSpace(login.Email))
+                    return Ok("Falta alguns dados");
 
-            //if (!await _usuarioAplicacao.ExisteUsuario(login.Email))
-            //{
-            //    return BadRequest("Não foi possivel encontrar o Usuario!");
-            //}
+                //if (!await _usuarioAplicacao.ExisteUsuario(login.Email))
+                //{
+                //    return BadRequest("Não foi possivel encontrar o Usuario!");
+                //}
 
-            //var usuarioId = await _usuarioAplicacao.RetornarIdUsuario(login.Email);
-            //var UsuarioTipo = await _usuarioAplicacao.RetornarTipoUsuario(login.Email);
-            //if (usuarioId == null || UsuarioTipo == null)
-            //    return Unauthorized(" Usuario não autorizado, verifique seu email!"); 
+                //var usuarioId = await _usuarioAplicacao.RetornarIdUsuario(login.Email);
+                //var UsuarioTipo = await _usuarioAplicacao.RetornarTipoUsuario(login.Email);
+                //if (usuarioId == null || UsuarioTipo == null)
+                //    return Unauthorized(" Usuario não autorizado, verifique seu email!"); 
 
-            var usuario = await _usuarioAplicacao.RetornarUsuarioEmail(login.Email);
+                var usuario = await _usuarioAplicacao.RetornarUsuarioEmail(login.Email);
 
-            if (usuario == null)
-                return BadRequest("Não foi possivel encontrar o Usuario!");
+                if (usuario == null)
+                    return BadRequest("Não foi possivel encontrar o Usuario!");
 
-            if(usuario.Id.ToString()==null || usuario.UsuarioTipo==null)
-                 return Unauthorized(" Usuario não autorizado, verifique seu email!");
+                if (usuario.Id.ToString() == null || usuario.UsuarioTipo == null)
+                    return Unauthorized(" Usuario não autorizado, verifique seu email!");
 
-            //var token = _tokenJwtBuilder.GerarTokenJwt(usuarioId.ToString(),UsuarioTipo, login.Email);
+                //var token = _tokenJwtBuilder.GerarTokenJwt(usuarioId.ToString(),UsuarioTipo, login.Email);
 
-            var token = _tokenJwtBuilder.GerarTokenJwt(usuario.Id.ToString(), usuario.UsuarioTipo, login.Email);
+                var token = _tokenJwtBuilder.GerarTokenJwt(usuario.Id.ToString(), usuario.UsuarioTipo, login.Email);
 
-            await _usuarioAplicacao.AtualizaToken(usuario.Id, token.value);
-            //token.value
-            return Ok(token.value); 
+                await _usuarioAplicacao.AtualizaToken(usuario.Id, token.value);
+                //token.value
+                return Ok(token.value);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
         }
 
         [Authorize(Policy = "RequireAdministratorRole")]
         [HttpDelete("/api/DeleteUsuario")]
         public async Task<IActionResult> DeleteUsuario([FromBody] int id)
         {
-            if (id <= 0)
-                return BadRequest("Id inválido!");
+
             try
             {
+                if (id <= 0)
+                    return BadRequest("Id inválido!");
+
                 await _usuarioAplicacao.DeletarUsuario(id);
                 return Ok("Usuário deletado com sucesso!");
             }
@@ -106,18 +128,26 @@ namespace Projeto.Controllers
         [HttpGet("/api/ListarUsuario")]
         public async Task<ActionResult<List<UsuarioDto>>> ListarUsario()
         {
-            // recupera o ID do usuário logado
-            var userId = User.FindFirst("idUsuario")?.Value;
+            try
+            {
+                // recupera o ID do usuário logado
+                var userId = User.FindFirst("idUsuario")?.Value;
 
 
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("Usuário não autenticado");
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Usuário não autenticado");
 
-            // chama a aplicação passando o id
-            var usuarios= await _usuarioAplicacao.ListarUsuariosAdm(int.Parse(userId));
+                // chama a aplicação passando o id
+                var usuarios = await _usuarioAplicacao.ListarUsuariosAdm(int.Parse(userId));
 
-            List<UsuarioDto> usuariosDto = usuarios.Select(u => (UsuarioDto)u).ToList();
-            return Ok(usuariosDto);
+                List<UsuarioDto> usuariosDto = usuarios.Select(u => (UsuarioDto)u).ToList();
+                return Ok(usuariosDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
         }
     }
 }

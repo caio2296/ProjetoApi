@@ -1,11 +1,13 @@
-using Aplicacao;
+﻿using Aplicacao;
 using Aplicacao.Interface;
 using Dominio.Interface;
 using Dominio.Interface.Generico;
 using Dominio.Servicos;
 using Dominio.Servicos.Interfaces;
+using Entidades.SendEmail;
 using Infraestrutura.Repositorio;
 using Infraestrutura.Repositorio.Generico;
+using Infraestrutura.SendEmail;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -33,8 +35,6 @@ Log.Logger = new LoggerConfiguration()
     )
     .CreateLogger();
 
-
-
 builder.Host.UseSerilog();
 
 
@@ -60,6 +60,17 @@ builder.Services.AddScoped<IFiltros>(provider =>
         provider.GetRequiredService<IConfiguration>()
                   .GetConnectionString("Default")!));
 
+// 🔹 Mapeia EmailSettings
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings")
+);
+
+// 🔹 Infraestrutura (quem envia de fato)
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+
+// 🔹 Application
+builder.Services.AddScoped<ISendEmailService,SendEmailService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddMemoryCache();
@@ -69,6 +80,7 @@ builder.Services.AddScoped<IFiltroAplicacao, FiltroAplicacao>();
 builder.Services.AddScoped<IUsuarioAplicacao, UsuarioAplicacao>();
 builder.Services.AddScoped<ICalendarAplicacao, CalendarAplicacao>();
 builder.Services.AddScoped<IFrutasAplicacao, FrutasAplicacao>();
+builder.Services.AddScoped<ISendEmailAplicacao, SendEmailAplicacao>();
 builder.Services.AddScoped<TokenJwtBuilder>();
 
 builder.Services.AddScoped<IFiltrosServicos, FiltrosServico>();
@@ -95,7 +107,7 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = @"JWT Authorization header usando o Bearer.
-                        Entre com 'Bearer ' [espa�o] ent�o coloque seu token.
+                        Entre com 'Bearer ' [espaço] então coloque seu token.
                         Exemplo: 'Bearer 12345oiuytr'",
         Name = "Authorization",
         In = ParameterLocation.Header,
