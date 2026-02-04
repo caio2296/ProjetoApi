@@ -1,14 +1,10 @@
 ﻿using Dominio.Interface;
 using Entidades.SendEmail;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Win32;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Infraestrutura.SendEmail
 {
@@ -43,7 +39,7 @@ namespace Infraestrutura.SendEmail
         {
             var mail = new MailMessage
             {
-                From = new MailAddress(_settings.Username),
+                From = new MailAddress(_settings.Username, "Sistema Teste - Notificações"),
                 Subject = message.Subject,
                 Body = message.Body,
                 IsBodyHtml = true

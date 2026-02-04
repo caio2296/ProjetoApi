@@ -8,6 +8,7 @@ using Entidades.SendEmail;
 using Infraestrutura.Repositorio;
 using Infraestrutura.Repositorio.Generico;
 using Infraestrutura.SendEmail;
+using Infraestrutura.Worker;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -71,6 +72,12 @@ builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 // 🔹 Application
 builder.Services.AddScoped<ISendEmailService,SendEmailService>();
 
+//serviço de email desacoplado
+
+builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
+builder.Services.AddHostedService<EmailBackgroundService>();
+
+
 builder.Services.AddControllers();
 
 builder.Services.AddMemoryCache();
@@ -89,6 +96,9 @@ builder.Services.AddScoped<IUsuarioServico, UsuarioServico>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
+
+
+
 
 builder.Services.AddAuthorization(options =>
 {

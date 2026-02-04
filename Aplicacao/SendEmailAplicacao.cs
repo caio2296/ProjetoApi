@@ -1,14 +1,8 @@
 ﻿using Aplicacao.Interface;
-using Dominio.Interface;
+using Dominio.Servicos.Interfaces;
 using Entidades;
 using Entidades.SendEmail;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aplicacao
 {
