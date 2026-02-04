@@ -16,6 +16,7 @@ using Microsoft.OpenApi.Models;
 using Projeto.Middleware;
 using Projeto.Token;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ Log.Logger = new LoggerConfiguration()
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 7
     )
+    .MinimumLevel
+    .Override("Microsoft", LogEventLevel.Warning)
     .CreateLogger();
 
 builder.Host.UseSerilog();
