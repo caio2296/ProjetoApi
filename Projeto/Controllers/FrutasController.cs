@@ -13,9 +13,11 @@ namespace Projeto.Controllers{
     public class FrutasController : ControllerBase
     {
         private IFrutasAplicacao _frutasAplicacao;
-        public FrutasController(IFrutasAplicacao frutasAplicacao)
+        private readonly ILogger<FrutasController> _logger;
+        public FrutasController(IFrutasAplicacao frutasAplicacao, ILogger<FrutasController> logger)
         {
             _frutasAplicacao = frutasAplicacao;
+            _logger = logger;
         }
         // GET: api/<FrutasController>
         [HttpGet("/api/ListarFrutas")]
@@ -36,7 +38,8 @@ namespace Projeto.Controllers{
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "Erro ao buscar as frutas!");
+                return StatusCode(500, "Erro interno no servidor");
             }
            
         }
@@ -60,7 +63,8 @@ namespace Projeto.Controllers{
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Erro interno: " + ex.Message);
+                _logger.LogError(ex, "Erro ao adicionar essa fruta!");
+                return StatusCode(500, "Erro interno no servidor");
             }
 
         }
@@ -87,11 +91,13 @@ namespace Projeto.Controllers{
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Erro nos argumentos");
+                return BadRequest("Confira os argumentos usados para atualizar!");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Erro interno: " + ex.Message);
+                _logger.LogError(ex, "Erro ao atualizar!");
+                return StatusCode(500, "Erro interno no servidor");
             }
 
         }
@@ -114,11 +120,13 @@ namespace Projeto.Controllers{
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Erro nos argumentos");
+                return BadRequest("Confira os argumentos usados para atualizar!");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Erro interno: " + ex.Message);
+                _logger.LogError(ex, "Erro ao deletar essa fruta!");
+                return StatusCode(500, "Erro interno no servidor");
             }
 
         }

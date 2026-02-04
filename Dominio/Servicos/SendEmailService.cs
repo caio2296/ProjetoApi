@@ -1,4 +1,5 @@
 ﻿using Dominio.Interface;
+using Dominio.Servicos.Interfaces;
 using Entidades.SendEmail;
 
 

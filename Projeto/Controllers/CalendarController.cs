@@ -13,9 +13,11 @@ namespace Projeto.Controllers
     public class CalendarController : ControllerBase
     {
         private ICalendarAplicacao _calendarAplicacao;
-        public CalendarController(ICalendarAplicacao calendarAplicacao)
+        private readonly ILogger<CalendarController> _logger;
+        public CalendarController(ICalendarAplicacao calendarAplicacao, ILogger<CalendarController> logger)
         {
             _calendarAplicacao = calendarAplicacao;
+            _logger = logger;
         }
         // GET: api/<FrutasController>
         [HttpGet("/api/BuscarCalendar")]
@@ -33,7 +35,8 @@ namespace Projeto.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "Erro ao buscar calendário!");
+                return StatusCode(500, "Erro interno no servidor");
             }
         }
     }

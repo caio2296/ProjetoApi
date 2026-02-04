@@ -1,10 +1,9 @@
 ﻿using Aplicacao.Interface;
-using Dominio.Interface;
 using Entidades;
-using Entidades.SendEmail;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Projeto.Middleware;
 using Projeto.Model;
 using Projeto.Token;
 
@@ -18,12 +17,19 @@ namespace Projeto.Controllers
     {
         private readonly IUsuarioAplicacao _usuarioAplicacao;
         private readonly TokenJwtBuilder _tokenJwtBuilder;
-        private ISendEmailAplicacao _sendEmailAplicacao;
-        public UsuarioController(IUsuarioAplicacao usuarioAplicacao, TokenJwtBuilder tokenJwtBuilder, ISendEmailAplicacao sendEmailAplicacao)
+        private readonly ILogger<UsuarioController> _logger;
+        private readonly ISendEmailAplicacao _sendEmailAplicacao;
+
+
+        private readonly IEmailQueue _emailQueue;
+        public UsuarioController(IUsuarioAplicacao usuarioAplicacao, TokenJwtBuilder tokenJwtBuilder, ISendEmailAplicacao sendEmailAplicacao,
+            IEmailQueue emailQueue, ILogger<UsuarioController> logger)
         {
             _usuarioAplicacao = usuarioAplicacao;
             _tokenJwtBuilder = tokenJwtBuilder;
             _sendEmailAplicacao = sendEmailAplicacao;
+            _emailQueue = emailQueue;
+            _logger = logger;
         }
 
         [Authorize(Policy = "RequireAdministratorRole")]
@@ -33,8 +39,11 @@ namespace Projeto.Controllers
         {
             try
             {
+
+                //throw new Exception("Erro forçado para teste");
+
                 if (string.IsNullOrWhiteSpace(registro.Email))
-                    return Ok("Falta alguns dados");
+                    return BadRequest("Falta alguns dados");
                 if (await _usuarioAplicacao.ExisteUsuario(registro.Email))
                 {
                     return Conflict("Usuário já cadastrado!");
@@ -45,15 +54,17 @@ namespace Projeto.Controllers
                     Email = registro.Email,
                 };
 
-                await _sendEmailAplicacao.EnviarEmailAsync(usuario);
 
                 await _usuarioAplicacao.AdicionarUsuario(usuario);
 
-                return Ok("Usuário Adicionado com Sucesso!");
+                await _emailQueue.EnqueueAsync(usuario);
+
+                return Created("", new { message = "Usuário adicionado com sucesso!" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "Erro ao registrar usuário");
+                return StatusCode(500, "Erro interno no servidor");
             }
         }
 
@@ -64,8 +75,10 @@ namespace Projeto.Controllers
         {
             try
             {
+                //throw new Exception("Erro forçado para teste");
+
                 if (string.IsNullOrWhiteSpace(login.Email))
-                    return Ok("Falta alguns dados");
+                    return BadRequest("Falta alguns dados");
 
                 //if (!await _usuarioAplicacao.ExisteUsuario(login.Email))
                 //{
@@ -95,7 +108,8 @@ namespace Projeto.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "Erro ao acessar usuario!");
+                return StatusCode(500, "Erro interno no servidor");
             }
 
         }
@@ -104,9 +118,10 @@ namespace Projeto.Controllers
         [HttpDelete("/api/DeleteUsuario")]
         public async Task<IActionResult> DeleteUsuario([FromBody] int id)
         {
-
             try
             {
+                //throw new Exception("Erro forçado para teste");
+
                 if (id <= 0)
                     return BadRequest("Id inválido!");
 
@@ -120,7 +135,8 @@ namespace Projeto.Controllers
             }
             catch (Exception ex)
             {
-              return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "Erro ao deletar usuario!");
+                return StatusCode(500, "Erro interno no servidor");
             }
         }
 
@@ -130,6 +146,8 @@ namespace Projeto.Controllers
         {
             try
             {
+                //throw new Exception("Erro forçado para teste");
+
                 // recupera o ID do usuário logado
                 var userId = User.FindFirst("idUsuario")?.Value;
 
@@ -145,9 +163,9 @@ namespace Projeto.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                _logger.LogError(ex, "Erro ao listar usuarios !");
+                return StatusCode(500, "Erro interno no servidor");
             }
-
         }
     }
 }
