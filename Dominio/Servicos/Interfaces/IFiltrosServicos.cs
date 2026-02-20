@@ -4,6 +4,6 @@ namespace Dominio.Servicos.Interfaces
 {
     public interface IFiltrosServicos
     {
-        Task<FilterCat> BuscarId(int Id); 
+        Task<List<FilterCat>> BuscarId(int Id); 
     }
 }
