@@ -10,6 +10,7 @@ using Infraestrutura.Repositorio.Generico;
 using Infraestrutura.SendEmail;
 using Infraestrutura.Worker;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -17,6 +18,8 @@ using Projeto.Middleware;
 using Projeto.Token;
 using Serilog;
 using Serilog.Events;
+using System.Data;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,7 +84,13 @@ builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
 builder.Services.AddHostedService<EmailBackgroundService>();
 
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(opt =>
+        {
+            opt.JsonSerializerOptions.DefaultIgnoreCondition =
+                JsonIgnoreCondition.WhenWritingNull;
+        }); 
 
 builder.Services.AddMemoryCache();
 
@@ -179,6 +188,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
+
+
 var frontClient = "http://localhost:4200";
 app.UseCors(x =>
 x.AllowAnyMethod()
@@ -202,5 +213,118 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
+// WARMUP para evitar cold start (JWT + Database + Stored Procedures)
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    Task.Run(async () =>
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+
+            // =========================
+            // 🔐 JWT Warmup
+            // =========================
+            var tokenBuilder =
+                scope.ServiceProvider.GetRequiredService<TokenJwtBuilder>();
+
+            tokenBuilder.GerarTokenJwt("0", "adm", "warmup@email.com");
+
+            Log.Information("JWT Warmup executado com sucesso.");
+
+            var connString = builder.Configuration.GetConnectionString("Default");
+
+            await using var conn = new SqlConnection(connString);
+            await conn.OpenAsync();
+
+            // =========================
+            // 👤 Warmup SP SelecionarUsuario
+            // =========================
+            await using (var cmdUsuario = new SqlCommand("SelecionarUsuario", conn))
+            {
+                cmdUsuario.CommandType = CommandType.StoredProcedure;
+
+                // ❗ evitar AddWithValue
+                cmdUsuario.Parameters
+                    .Add("@Email", SqlDbType.VarChar, 150)
+                    .Value = "warmup@email.com";
+
+                await cmdUsuario.ExecuteScalarAsync();
+            }
+
+            Log.Information("Warmup SelecionarUsuario executado.");
+
+            // =========================
+            // 🔎 Warmup SP sp_MontaJsonPorPagina
+            // =========================
+            await using (var cmdFiltro = new SqlCommand("dbo.sp_MontaJsonPorPagina", conn))
+            {
+                cmdFiltro.CommandType = CommandType.StoredProcedure;
+
+                cmdFiltro.Parameters
+                    .Add("@IdPagina", SqlDbType.Int)
+                    .Value = 1;
+
+                var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                cmdFiltro.Parameters.Add(outputParam);
+
+                await cmdFiltro.ExecuteNonQueryAsync();
+
+                //// ✅ VERIFICA RESULTADO
+                //var jsonResultado = outputParam.Value?.ToString();
+
+                //Log.Information("Warmup retorno JSON tamanho: {Length}",
+                //    jsonResultado?.Length ?? 0);
+            }
+
+            // =========================
+            // 🔎 Warmup SP sp_MontaJsonPorPagina
+            // =========================
+            await using (var cmdCalendar = new SqlCommand("GetCalendario", conn))
+            {
+                cmdCalendar.CommandType = CommandType.StoredProcedure;
+
+
+                await cmdCalendar.ExecuteScalarAsync();
+
+                Log.Information("Warmup Calendario executado.");
+            }
+
+            Log.Information("Warmup Filtros executado.");
+
+            Log.Information("🔥 Warmup JWT + Database + Stored Procedures concluído.");
+
+            //// =========================
+            //// 🌐 HTTP PIPELINE WARMUP
+            //// =========================
+
+            //var baseUrl = "https://localhost:44325"; // ⚠️ AJUSTE PARA SUA PORTA
+
+            //using var httpClient = new HttpClient
+            //{
+            //    BaseAddress = new Uri(baseUrl)
+            //};
+
+            //await Task.WhenAll(
+            //    httpClient.GetAsync("/api/BuscarFiltro/1")
+
+            //);
+
+            //Log.Information("🔥 Warmup HTTP Pipeline executado.");
+
+            //Log.Information("🚀 Warmup COMPLETO finalizado.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Erro no warmup geral");
+        }
+    });
+});
 
 app.Run();

@@ -12,7 +12,7 @@ namespace Dominio.Servicos
         {
                 _filtros= filtros;
         }
-        public async Task<FilterCat> BuscarId(int Id)
+        public async Task<List<FilterCat>> BuscarId(int Id)
         {
             if (Id == null)
             {
@@ -23,3 +23,4 @@ namespace Dominio.Servicos
         }
     }
 }
+ 
