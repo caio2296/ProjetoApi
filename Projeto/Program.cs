@@ -10,6 +10,7 @@ using Infraestrutura.Repositorio.Generico;
 using Infraestrutura.SendEmail;
 using Infraestrutura.Worker;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,6 +20,7 @@ using Projeto.Token;
 using Serilog;
 using Serilog.Events;
 using System.Data;
+using System.IO.Compression;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -82,6 +84,8 @@ builder.Services.AddScoped<ISendEmailService,SendEmailService>();
 
 builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
 builder.Services.AddHostedService<EmailBackgroundService>();
+
+builder.Services.AddHostedService<WarmupService>();
 
 
 builder.Services
@@ -185,6 +189,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+
+//compressão para a serialização dos json
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
 
 var app = builder.Build();
 
@@ -326,5 +342,10 @@ app.Lifetime.ApplicationStarted.Register(() =>
         }
     });
 });
+
+
+//compressão para a serialização dos json
+
+app.UseResponseCompression();
 
 app.Run();
