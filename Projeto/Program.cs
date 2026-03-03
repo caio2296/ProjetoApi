@@ -21,6 +21,7 @@ using Serilog;
 using Serilog.Events;
 using System.Data;
 using System.IO.Compression;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,20 +29,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithMachineName()
+    .Enrich.WithThreadId()
     .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
     .WriteTo.Console()
     .WriteTo.File(
         "logs/api-.log",
         rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7
+        retainedFileCountLimit: 7,
+        outputTemplate:
+        "{Timestamp:HH:mm:ss} [{Level:u3}] ({ThreadId}) {Message:lj}{NewLine}{Exception}"
     )
-    .WriteTo.File(
-        "Logs/memory-log-.txt",
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7
-    )
-    .MinimumLevel
-    .Override("Microsoft", LogEventLevel.Warning)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -197,9 +197,18 @@ builder.Services.AddResponseCompression(options =>
     options.EnableForHttps = true;
 });
 
+builder.Services.ConfigureHttpJsonOptions(opt =>
+{
+    opt.SerializerOptions.DefaultIgnoreCondition =
+        JsonIgnoreCondition.WhenWritingNull;
+    opt.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    opt.SerializerOptions.WriteIndented = false;
+});
+
 builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 {
     options.Level = CompressionLevel.Fastest;
+
 });
 
 var app = builder.Build();
