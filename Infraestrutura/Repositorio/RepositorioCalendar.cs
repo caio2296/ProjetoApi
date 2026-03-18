@@ -27,25 +27,33 @@ namespace Infraestrutura.Repositorio
             var calendar = new CalendarModel();
             string nomeProcedimento = "GetCalendario";
 
-
-            using (var conn = new SqlConnection(_connectionString))
+            try
             {
-                using (var cmd = new SqlCommand(nomeProcedimento, conn))
+                using (var conn = new SqlConnection(_connectionString))
                 {
-                    await conn.OpenAsync();
-
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    var resultado = await cmd.ExecuteScalarAsync();
-
-                    if (resultado != null && resultado != DBNull.Value)
+                    using (var cmd = new SqlCommand(nomeProcedimento, conn))
                     {
-                        string json = Convert.ToString(resultado);
-                        calendar = JsonSerializer.Deserialize<CalendarModel>(json, _jsonOptions);
+                        await conn.OpenAsync();
+
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        var resultado = await cmd.ExecuteScalarAsync();
+
+                        if (resultado != null && resultado != DBNull.Value)
+                        {
+                            string json = Convert.ToString(resultado);
+                            calendar = JsonSerializer.Deserialize<CalendarModel>(json, _jsonOptions);
+                        }
+                        return calendar;
                     }
-                    return calendar;
                 }
             }
+            catch (Exception)
+            {
+
+                throw ;
+            }
+           
         }
     }
 }

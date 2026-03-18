@@ -25,14 +25,9 @@ namespace Infraestrutura.Worker
             {
                 using var scope = _provider.CreateScope();
 
-                //var repoCal = scope.ServiceProvider
-                //    .GetRequiredService<ICalendarAplicacao>();
+                var repoUsuario = scope.ServiceProvider.GetRequiredService<IUsuarioAplicacao>();
 
-                //await repoCal.BuscarCalendar();
-
-                var repoFiltro = scope.ServiceProvider.GetRequiredService<IFiltroAplicacao>();
-
-                await repoFiltro.BuscarFiltros(1);
+                await repoUsuario.ExisteUsuario("warmup@email.com");
 
                 await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
