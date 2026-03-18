@@ -8,6 +8,8 @@ using Infraestrutura.Repositorio;
 using Infraestrutura.Repositorio.Generico;
 using Infraestrutura.Worker;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,6 +17,10 @@ using Projeto.Middleware;
 using Projeto.Token;
 using Serilog;
 using Serilog.Events;
+using System.Data;
+using System.IO.Compression;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,21 +64,6 @@ builder.Services.AddScoped<IFiltros>(provider =>
                   .GetConnectionString("Default")!));
 
 builder.Services.AddHostedService<WarmupService>();
-// 🔹 Mapeia EmailSettings
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings")
-);
-
-// 🔹 Infraestrutura (quem envia de fato)
-builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
-
-// 🔹 Application
-builder.Services.AddScoped<ISendEmailService,SendEmailService>();
-
-//serviço de email desacoplado
-
-builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
-builder.Services.AddHostedService<EmailBackgroundService>();
 
 
 builder.Services.AddControllers();
@@ -230,37 +221,12 @@ app.Lifetime.ApplicationStarted.Register(() =>
         {
             using var scope = app.Services.CreateScope();
 
-            // =========================
-            // 🔐 JWT Warmup
-            // =========================
-            var tokenBuilder =
-                scope.ServiceProvider.GetRequiredService<TokenJwtBuilder>();
-
-            tokenBuilder.GerarTokenJwt("0", "adm", "warmup@email.com");
-
-            Log.Information("JWT Warmup executado com sucesso.");
 
             var connString = builder.Configuration.GetConnectionString("Default");
 
             await using var conn = new SqlConnection(connString);
             await conn.OpenAsync();
 
-            // =========================
-            // 👤 Warmup SP SelecionarUsuario
-            // =========================
-            await using (var cmdUsuario = new SqlCommand("SelecionarUsuario", conn))
-            {
-                cmdUsuario.CommandType = CommandType.StoredProcedure;
-
-                // ❗ evitar AddWithValue
-                cmdUsuario.Parameters
-                    .Add("@Email", SqlDbType.VarChar, 150)
-                    .Value = "warmup@email.com";
-
-                await cmdUsuario.ExecuteScalarAsync();
-            }
-
-            Log.Information("Warmup SelecionarUsuario executado.");
 
             // =========================
             // 🔎 Warmup SP sp_MontaJsonPorPagina
@@ -332,6 +298,11 @@ app.Lifetime.ApplicationStarted.Register(() =>
         }
     });
 });
+
+AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+{
+    Console.WriteLine("🔥 ERRO GLOBAL: " + eventArgs.ExceptionObject);
+};
 
 
 //compressão para a serialização dos json

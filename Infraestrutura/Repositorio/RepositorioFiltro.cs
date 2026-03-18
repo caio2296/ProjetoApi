@@ -14,18 +14,18 @@ namespace Infraestrutura.Repositorio
         {
             _connectionString = connection;
         }
-        public async Task<FilterCat> BuscarFiltros(int id)
+        public async Task<List<FilterCat>> BuscarFiltros(int id)
         {
-            var filtro = new FilterCat();
+            var filtro = new List<FilterCat>();
             using (var conn = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("dbo.sp_MontaJsonComPai", conn))
+            using (var command = new SqlCommand("sp_MontaJsonPorPagina", conn))
             {
                 command.CommandType = CommandType.StoredProcedure;
 
 
-                command.Parameters.AddWithValue("@rootId", id);
+                command.Parameters.Add("@IdPagina", SqlDbType.Int).Value = id;
 
-                var outputParam = new SqlParameter("@json", SqlDbType.NVarChar, -1)
+                var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
                 {
                     Direction = ParameterDirection.Output
                 };
@@ -37,7 +37,7 @@ namespace Infraestrutura.Repositorio
                 var resultado = outputParam.Value?.ToString();
                 if (!string.IsNullOrWhiteSpace(resultado))
                 {
-                    filtro = JsonSerializer.Deserialize<FilterCat>(resultado);
+                    filtro = JsonSerializer.Deserialize<List<FilterCat>>(resultado);
 
 
                 }

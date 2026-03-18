@@ -13,7 +13,7 @@ namespace Aplicacao
             _filtros = filtros;
         }
 
-        public async Task<FilterCat> BuscarFiltros(int id)
+        public async Task<List<FilterCat>> BuscarFiltros(int id)
         {
             return await _filtros.BuscarId(id);
         }

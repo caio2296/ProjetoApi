@@ -18,7 +18,7 @@ namespace Projeto.Controllers
         // GET: api/<FrutasController>
         [HttpGet("/api/BuscarFiltro/{id}")]
         [Produces("application/json")]
-        public async Task<ActionResult<FilterCat>> BuscarFiltro(int id)
+        public async Task<ActionResult<List<FilterCat>>> BuscarFiltro(int id)
         {
             try
             {
