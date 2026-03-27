@@ -10,6 +10,7 @@ public class JwtTokenMiddleware
     private readonly RequestDelegate _next;
     private readonly string _chaveSecreta;
     private readonly string _connectionString;
+
     private readonly ILogger<JwtTokenMiddleware> _logger;
 
     public JwtTokenMiddleware(RequestDelegate next, string chaveSecreta, string connectionString, ILogger<JwtTokenMiddleware> logger)
@@ -19,6 +20,8 @@ public class JwtTokenMiddleware
         _connectionString = connectionString;
         _logger = logger;
     }
+
+
 
     public async Task InvokeAsync(HttpContext context)
     {

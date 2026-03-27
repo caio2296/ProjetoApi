@@ -22,6 +22,9 @@ namespace Projeto.Controllers
         private readonly ILogger<UsuarioController> _logger;
 
 
+
+
+
         private readonly IEmailProducer _emailQueue;
         public UsuarioController(IUsuarioAplicacao usuarioAplicacao, TokenJwtBuilder tokenJwtBuilder,
             IEmailProducer emailQueue, ILogger<UsuarioController> logger)
