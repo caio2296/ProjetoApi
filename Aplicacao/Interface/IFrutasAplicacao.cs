@@ -8,6 +8,6 @@ namespace Aplicacao.Interface
         Task AdicionarFrutasSemEF(Frutas Objeto);
         Task AtualizarFrutaSemEF(Frutas Objeto);
         Task DeletarFruta(int id);
-        Task<List<Frutas>> ListarFrutas();
+        Task<IEnumerable<Frutas>> ListarFrutas();
     }
 }

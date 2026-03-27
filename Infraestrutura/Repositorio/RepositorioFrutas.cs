@@ -75,37 +75,41 @@ namespace Infraestrutura.Repositorio
 
         // Adicionar a lista de fruta e byid sem o ef 
 
-        public new async Task<List<Frutas>> ListarFrutas()
+        public async Task<IReadOnlyCollection<Frutas>> ListarFrutas()
         {
             var lista = new List<Frutas>();
-            string nomeProcedimento = "ListarFrutas";
+            const string nomeProcedimento = "ListarFrutas";
 
-            using (var conn = new SqlConnection(_connectionString))
+            using var conn = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(nomeProcedimento, conn)
             {
-                using (var cmd = new SqlCommand(nomeProcedimento, conn))
+                CommandType = CommandType.StoredProcedure
+            };
+
+            await conn.OpenAsync().ConfigureAwait(false);
+
+            using var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+
+            // 🔥 Cache dos ordinais (performance)
+            var ordId = reader.GetOrdinal("SLT_ID");
+            var ordDescricao = reader.GetOrdinal("SLT_Descricao");
+            var ordCor = reader.GetOrdinal("SLT_Cor");
+            var ordTamanho = reader.GetOrdinal("SLT_Tamanho");
+
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var fruta = new Frutas
                 {
-                    await conn.OpenAsync();
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            var fruta = new Frutas
-                            {
-                                Id = reader.GetInt32(reader.GetOrdinal("SLT_ID")),
-                                Descricao = reader.GetString(reader.GetOrdinal("SLT_Descricao")),
-                                Cor = reader.GetString(reader.GetOrdinal("SLT_Cor")),
-                                Tamanho = reader.GetString(reader.GetOrdinal("SLT_Tamanho"))
-                            };
+                    Id = reader.GetInt32(ordId),
+                    Descricao = reader.IsDBNull(ordDescricao) ? null : reader.GetString(ordDescricao),
+                    Cor = reader.IsDBNull(ordCor) ? null : reader.GetString(ordCor),
+                    Tamanho = reader.IsDBNull(ordTamanho) ? null : reader.GetString(ordTamanho)
+                };
 
-                            lista.Add(fruta);
-                        }
-
-                        return lista;
-
-                    }
-                }
+                lista.Add(fruta);
             }
+
+            return lista;
         }
 
         public new async Task<Frutas?> BuscarPorId(int id)
@@ -153,7 +157,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task<List<Frutas>> ListarFrutasEx(Expression<Func<Frutas, bool>> exFrutas)
+        public async Task<IReadOnlyCollection<Frutas>> ListarFrutasEx(Expression<Func<Frutas, bool>> exFrutas)
         {
             using (var banco = new Contexto(_optionsBuilder))
             {
@@ -161,7 +165,7 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task<List<Frutas>> ListarFrutasCustomizada(int idFrutas)
+        public async Task<IReadOnlyCollection<Frutas>> ListarFrutasCustomizada(int idFrutas)
         {
             using (var banco = new Contexto(_optionsBuilder))
             {

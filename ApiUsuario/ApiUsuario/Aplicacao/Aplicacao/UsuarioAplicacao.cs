@@ -33,17 +33,17 @@ namespace Aplicacao
             return await _usuario.ExisteUsuario(email);
         }
 
-        public Task<List<Usuarios>> ListarUsuarios(Expression<Func<Usuarios, bool>> exUsuarios)
+        public Task<IEnumerable<Usuarios>> ListarUsuarios(Expression<Func<Usuarios, bool>> exUsuarios)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Usuarios>> ListarUsuariosCustomizada(string idUsuario)
+        public Task<IEnumerable<Usuarios>> ListarUsuariosCustomizada(string idUsuario)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<Usuarios>> ListarUsuariosAdm(int id)
+        public async Task<IEnumerable<Usuarios>> ListarUsuariosAdm(int id)
         {
             return await _usuario.ListarUsuariosAdm(id); 
         }

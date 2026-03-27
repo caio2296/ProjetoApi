@@ -6,6 +6,6 @@
         Task Atualizar(T Objeto);
         Task Excluir(T Objeto);
         Task<T> BuscarPorId(int id);
-        Task<List<T>> Listar();
+        Task<IEnumerable<T>> Listar();
     }
 }

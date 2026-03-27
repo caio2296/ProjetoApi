@@ -14,36 +14,39 @@ namespace Infraestrutura.Repositorio
         {
             _connectionString = connection;
         }
-        public async Task<List<FilterCat>> BuscarFiltros(int id)
+        public async Task<FilterCat> BuscarFiltros(int id)
         {
-            var filtro = new List<FilterCat>();
+            var filtro = new FilterCat();
             using (var conn = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("dbo.sp_MontaJsonPorPagina", conn))
+            using (var command = new SqlCommand("dbo.sp_MontaJsonComPai", conn))
             {
-                command.CommandType = CommandType.StoredProcedure;
+                CommandType = CommandType.StoredProcedure
+            };
 
+            command.Parameters.Add("@IdPagina", SqlDbType.Int).Value = id;
 
-                command.Parameters.Add("@IdPagina", SqlDbType.Int).Value = id;
+                command.Parameters.AddWithValue("@rootId", id);
 
-                var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
+                var outputParam = new SqlParameter("@json", SqlDbType.NVarChar, -1)
                 {
                     Direction = ParameterDirection.Output
                 };
                 command.Parameters.Add(outputParam);
 
-                await conn.OpenAsync();
-                await command.ExecuteNonQueryAsync();
+            await conn.OpenAsync().ConfigureAwait(false);
+            await command.ExecuteNonQueryAsync().ConfigureAwait(false);
 
                 var resultado = outputParam.Value?.ToString();
                 if (!string.IsNullOrWhiteSpace(resultado))
                 {
-                    filtro = JsonSerializer.Deserialize<List<FilterCat>>(resultado);
+                    filtro = JsonSerializer.Deserialize<FilterCat>(resultado);
 
 
-                }
-
-                return filtro;
-
+                return filtros ?? new List<FilterCat>();
+            }
+            catch (JsonException ex)
+            {
+                throw new Exception("Erro ao desserializar os filtros.", ex);
             }
         }
     }

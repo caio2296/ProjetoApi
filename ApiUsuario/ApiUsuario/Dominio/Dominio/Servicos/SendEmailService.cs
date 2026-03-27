@@ -1,6 +1,7 @@
-﻿using Dominio.Interface;
+﻿using Dominio.DTO;
+using Dominio.Interface;
 using Dominio.Servicos.Interfaces;
-using Entidades.SendEmail;
+
 
 
 namespace Dominio.Servicos

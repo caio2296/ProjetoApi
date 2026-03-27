@@ -32,7 +32,7 @@ namespace Entidades.Filtros
         public bool ControlsByRow { get; set; }
 
         [JsonPropertyName("children")]
-        public List<FilterCat>? Children { get; set; }
+        public ICollection<FilterCat>? Children { get; set; } = new List<FilterCat>();
 
         [JsonPropertyName("labelbyrow")]
         public bool? LabelByRow { get; set; }
@@ -56,10 +56,10 @@ namespace Entidades.Filtros
         public string? ImageOverUrl { get; set; }
 
         [JsonPropertyName("radioitems")]
-        public List<RadioItems>? RadioItems { get; set; }
+        public ICollection<RadioItems>? RadioItems { get; set; } = new List<RadioItems>();
 
         [JsonPropertyName("selectItems")]
-        public List<SelectItems>? SelectItems { get; set; }
+        public ICollection<SelectItems>? SelectItems { get; set; } = new List<SelectItems>();
 
     }
 }

@@ -38,21 +38,6 @@ namespace Infraestrutura.Repositorio.Generico
 
         }
 
-        public Task AdicionarFrutasSemEF(T Objeto)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AtualizarFrutaSemEF(T Objeto)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<T>> ListarFrutasSemEF()
-        {
-            throw new NotImplementedException();
-        }
-
         public  Task<T?> BuscarPorId(int id)
         {
             throw new NotImplementedException();

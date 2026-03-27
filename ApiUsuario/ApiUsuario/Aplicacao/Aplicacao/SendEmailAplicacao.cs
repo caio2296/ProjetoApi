@@ -1,7 +1,7 @@
 ﻿using Aplicacao.Interface;
 using Dominio.Servicos.Interfaces;
 using Entidades;
-using Entidades.SendEmail;
+using Dominio.DTO;
 using System.Net.Mail;
 
 namespace Aplicacao

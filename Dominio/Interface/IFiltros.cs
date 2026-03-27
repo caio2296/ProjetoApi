@@ -5,6 +5,6 @@ namespace Dominio.Interface
 {
     public interface IFiltros: IGenerico<FilterCat>
     {
-        Task<List<FilterCat>>BuscarFiltros(int id);
+        Task<FilterCat>BuscarFiltros(int id);
     }
 }
