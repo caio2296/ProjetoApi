@@ -5,6 +5,6 @@ namespace Aplicacao.Interface
 {
     public interface IFiltroAplicacao : IGenericoAplicacao<FilterCat>
     {
-        Task<FilterCat> BuscarFiltros(int id);
+        Task<IEnumerable<FilterCat>> BuscarFiltros(int id);
     }
 }
