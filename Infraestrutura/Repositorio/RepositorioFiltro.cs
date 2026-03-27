@@ -14,7 +14,7 @@ namespace Infraestrutura.Repositorio
         {
             _connectionString = connection;
         }
-        public async Task<IEnumerable<FilterCat>> BuscarFiltros(int id)
+        public async Task<FilterCat> BuscarFiltros(int id)
         {
             var filtro = new FilterCat();
             using (var conn = new SqlConnection(_connectionString))
