@@ -47,7 +47,7 @@ namespace Dominio.Servicos
             await _frutas.DeletarFruta(id);
         }
 
-        public async Task<List<Frutas>> ListarFrutas()
+        public async Task<IEnumerable<Frutas>> ListarFrutas()
         {
             var listaFrutas =  await _frutas.ListarFrutas();
 

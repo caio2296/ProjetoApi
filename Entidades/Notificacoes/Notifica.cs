@@ -10,7 +10,7 @@
 
         protected string? Mensagem { get; set; }
 
-        protected List<Notifica> Notificacoes { get; set; }
+        protected ICollection<Notifica> Notificacoes { get; set; }
         
         public bool ValidarPropriedadeString(string valor, string nomeDaPropriedade)
         {

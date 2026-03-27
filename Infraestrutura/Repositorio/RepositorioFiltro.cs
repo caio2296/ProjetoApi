@@ -14,36 +14,40 @@ namespace Infraestrutura.Repositorio
         {
             _connectionString = connection;
         }
-        public async Task<List<FilterCat>> BuscarFiltros(int id)
+        public async Task<IReadOnlyCollection<FilterCat>> BuscarFiltros(int id)
         {
-            var filtro = new List<FilterCat>();
-            using (var conn = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("sp_MontaJsonPorPagina", conn))
+            using var conn = new SqlConnection(_connectionString);
+            using var command = new SqlCommand("sp_MontaJsonPorPagina", conn)
             {
-                command.CommandType = CommandType.StoredProcedure;
+                CommandType = CommandType.StoredProcedure
+            };
 
+            command.Parameters.Add("@IdPagina", SqlDbType.Int).Value = id;
 
-                command.Parameters.Add("@IdPagina", SqlDbType.Int).Value = id;
+            var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
+            {
+                Direction = ParameterDirection.Output
+            };
 
-                var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
-                {
-                    Direction = ParameterDirection.Output
-                };
-                command.Parameters.Add(outputParam);
+            command.Parameters.Add(outputParam);
 
-                await conn.OpenAsync();
-                await command.ExecuteNonQueryAsync();
+            await conn.OpenAsync().ConfigureAwait(false);
+            await command.ExecuteNonQueryAsync().ConfigureAwait(false);
 
-                var resultado = outputParam.Value?.ToString();
-                if (!string.IsNullOrWhiteSpace(resultado))
-                {
-                    filtro = JsonSerializer.Deserialize<List<FilterCat>>(resultado);
+            var resultado = outputParam.Value?.ToString();
 
+            if (string.IsNullOrWhiteSpace(resultado))
+                return Array.Empty<FilterCat>();
 
-                }
+            try
+            {
+                var filtros = JsonSerializer.Deserialize<List<FilterCat>>(resultado);
 
-                return filtro;
-
+                return filtros ?? new List<FilterCat>();
+            }
+            catch (JsonException ex)
+            {
+                throw new Exception("Erro ao desserializar os filtros.", ex);
             }
         }
     }

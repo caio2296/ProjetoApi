@@ -1,5 +1,5 @@
 ﻿using Dominio.Interface;
-using Entidades.SendEmail;
+using Dominio.DTO;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using System.Net;

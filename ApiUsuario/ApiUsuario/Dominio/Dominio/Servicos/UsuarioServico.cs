@@ -49,7 +49,7 @@ namespace Dominio.Servicos
             await _usuario.DeletarUsuario(id);
         }
 
-        public async Task<List<Usuarios>> ListarUsuariosSemEF(int id)
+        public async Task<IEnumerable<Usuarios>> ListarUsuariosSemEF(int id)
         {
             var listaUsuarios = await _usuario.ListarUsuariosAdm(id);
 
@@ -73,7 +73,7 @@ namespace Dominio.Servicos
 
         }
 
-        public async Task<List<Usuarios>> ListarUsuariosAdm(int id)
+        public async Task<IEnumerable<Usuarios>> ListarUsuariosAdm(int id)
         {
             if(id == null|| id < 0)
             {

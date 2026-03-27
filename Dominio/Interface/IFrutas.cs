@@ -9,9 +9,9 @@ namespace Dominio.Interface
         Task AdicionarFruta(Frutas Objeto);
         Task AtualizarFruta(Frutas Objeto);
         Task DeletarFruta(int id);
-        Task<List<Frutas>> ListarFrutas();
-        Task<List<Frutas>> ListarFrutasEx(Expression<Func<Frutas, bool>> exFrutas);
-        Task<List<Frutas>> ListarFrutasCustomizada(int idUsuario);
+        Task<IReadOnlyCollection<Frutas>> ListarFrutas();
+        Task<IReadOnlyCollection<Frutas>> ListarFrutasEx(Expression<Func<Frutas, bool>> exFrutas);
+        Task<IReadOnlyCollection<Frutas>> ListarFrutasCustomizada(int idUsuario);
         Task<bool> ExisteFrutas(int idFrutas);
     }
 }

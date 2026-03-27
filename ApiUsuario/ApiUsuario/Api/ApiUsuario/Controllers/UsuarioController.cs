@@ -1,5 +1,7 @@
 ﻿using Aplicacao.Interface;
+using Dominio.DTO;
 using Entidades;
+using Infraestrutura.SendEmail.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -18,16 +20,14 @@ namespace Projeto.Controllers
         private readonly IUsuarioAplicacao _usuarioAplicacao;
         private readonly TokenJwtBuilder _tokenJwtBuilder;
         private readonly ILogger<UsuarioController> _logger;
-        private readonly ISendEmailAplicacao _sendEmailAplicacao;
 
 
-        private readonly IEmailQueue _emailQueue;
-        public UsuarioController(IUsuarioAplicacao usuarioAplicacao, TokenJwtBuilder tokenJwtBuilder, ISendEmailAplicacao sendEmailAplicacao,
-            IEmailQueue emailQueue, ILogger<UsuarioController> logger)
+        private readonly IEmailProducer _emailQueue;
+        public UsuarioController(IUsuarioAplicacao usuarioAplicacao, TokenJwtBuilder tokenJwtBuilder,
+            IEmailProducer emailQueue, ILogger<UsuarioController> logger)
         {
             _usuarioAplicacao = usuarioAplicacao;
             _tokenJwtBuilder = tokenJwtBuilder;
-            _sendEmailAplicacao = sendEmailAplicacao;
             _emailQueue = emailQueue;
             _logger = logger;
         }
@@ -57,7 +57,20 @@ namespace Projeto.Controllers
 
                 await _usuarioAplicacao.AdicionarUsuario(usuario);
 
-                await _emailQueue.EnqueueAsync(usuario);
+                // 🔥 NÃO BLOQUEIA MAIS
+                _ = Task.Run(() => _emailQueue.TentarEnviarEmailAsync(new EmailMessage
+                {
+                    To = new List<string> { usuario.Email },
+                    Subject = "Bem-vindo!",
+                    Body = $"Olá, {usuario.Email}, seu cadastro foi realizado com sucesso!"
+                }));
+
+                //await _emailQueue.EnviarAsync(new EmailMessage
+                //{
+                //    To = new List<string> { usuario.Email },
+                //    Subject = "Bem-vindo!",
+                //    Body = $"Olá, {usuario.Email}, seu cadastro foi realizado com sucesso!"
+                //});
 
                 return Created("", new { message = "Usuário adicionado com sucesso!" });
             }
@@ -142,7 +155,7 @@ namespace Projeto.Controllers
 
         [Authorize(Policy = "RequireAdministratorRole")]
         [HttpGet("/api/ListarUsuario")]
-        public async Task<ActionResult<List<UsuarioDto>>> ListarUsario()
+        public async Task<ActionResult<IEnumerable<UsuarioDto>>> ListarUsario()
         {
             try
             {

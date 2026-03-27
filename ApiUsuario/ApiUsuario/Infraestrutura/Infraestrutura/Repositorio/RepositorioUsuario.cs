@@ -128,12 +128,12 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public Task<List<Usuarios>> ListarUsuarios(Expression<Func<Usuarios, bool>> exUsuarios)
+        public Task<IEnumerable<Usuarios>> ListarUsuarios(Expression<Func<Usuarios, bool>> exUsuarios)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Usuarios>> ListarUsuariosCustomizada(string idUsuario)
+        public Task<IEnumerable<Usuarios>> ListarUsuariosCustomizada(string idUsuario)
         {
             throw new NotImplementedException();
         }
@@ -170,41 +170,44 @@ namespace Infraestrutura.Repositorio
             }
         }
 
-        public async Task<List<Usuarios>> ListarUsuariosAdm(int id)
+        public async Task<IEnumerable<Usuarios>> ListarUsuariosAdm(int id)
         {
             var lista = new List<Usuarios>();
             const string nomeProcedimento = "ListarUsuariosExcetoId";
 
-            using (var conn = new SqlConnection(_connectionString))
+            using var conn = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(nomeProcedimento, conn)
             {
+                CommandType = CommandType.StoredProcedure
+            };
 
-                using (var cmd = new SqlCommand(nomeProcedimento, conn))
+            // 🔥 Evita AddWithValue
+            cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
+            await conn.OpenAsync().ConfigureAwait(false);
+
+            using var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+
+            // 🔥 Cache dos ordinais
+            var ordId = reader.GetOrdinal("Id");
+            var ordEmail = reader.GetOrdinal("Email");
+            var ordTipo = reader.GetOrdinal("TipoUsuario");
+
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var usuario = new Usuarios
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Id", id);
+                    Id = reader.GetInt32(ordId),
+                    Email = reader.IsDBNull(ordEmail)
+                        ? string.Empty
+                        : reader.GetString(ordEmail),
+                    UsuarioTipo = reader.GetString(ordTipo)
+                };
 
-                    await conn.OpenAsync();
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            var usuario = new Usuarios
-                            {
-                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                                Email = reader.IsDBNull(reader.GetOrdinal("Email"))
-                                             ? string.Empty
-            :                                  reader.GetString(reader.GetOrdinal("Email")),
-                                UsuarioTipo = reader.GetString(reader.GetOrdinal("TipoUsuario"))
-                            };
-
-                            lista.Add(usuario);
-                        }
-
-                        return lista;
-
-                    }
-                }
+                lista.Add(usuario);
             }
+
+            return lista;
         }
 
         public async Task<string> RetornarTipoUsuario(string email)

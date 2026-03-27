@@ -37,7 +37,7 @@ namespace Aplicacao
             throw new NotImplementedException();
         }
 
-        public Task<List<CalendarModel>> Listar()
+        public Task<IEnumerable<CalendarModel>> Listar()
         {
             throw new NotImplementedException();
         }

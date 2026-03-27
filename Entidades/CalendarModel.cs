@@ -80,7 +80,7 @@ namespace Entidades
     public class ShiftBar
     {
         [JsonPropertyName("descriptions")]
-        public List<string> Descriptions { get; set; }
+        public ICollection<string> Descriptions { get; set; } = new List<string>();
 
         [JsonPropertyName("visible")]
         public bool Visible { get; set; }

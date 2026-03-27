@@ -4,7 +4,7 @@ using Dominio.Interface;
 using Dominio.Interface.Generico;
 using Dominio.Servicos;
 using Dominio.Servicos.Interfaces;
-using Entidades.SendEmail;
+using Dominio.DTO;
 using Infraestrutura.Repositorio;
 using Infraestrutura.Repositorio.Generico;
 using Infraestrutura.SendEmail;
@@ -22,6 +22,7 @@ using System.Data;
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Infraestrutura.SendEmail.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,12 +62,15 @@ builder.Services.Configure<EmailSettings>(
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
 // 🔹 Application
-builder.Services.AddScoped<ISendEmailService, SendEmailService>();
+//builder.Services.AddScoped<ISendEmailService, SendEmailService>();
 
 //serviço de email desacoplado
 
-builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
-builder.Services.AddHostedService<EmailBackgroundService>();
+//builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
+//builder.Services.AddHostedService<EmailBackgroundService>();
+
+builder.Services.AddSingleton<IEmailProducer, EmailProducer>();
+builder.Services.AddHostedService<EmailConsumerService>();
 
 builder.Services.AddHostedService<WarmupService>();
 
@@ -79,7 +83,7 @@ builder.Services
     });
 
 builder.Services.AddScoped<IUsuarioAplicacao, UsuarioAplicacao>();
-builder.Services.AddScoped<ISendEmailAplicacao, SendEmailAplicacao>();
+//builder.Services.AddScoped<ISendEmailAplicacao, SendEmailAplicacao>();
 builder.Services.AddScoped<TokenJwtBuilder>();
 
 builder.Services.AddScoped<IUsuarioServico, UsuarioServico>();
@@ -262,7 +266,10 @@ app.Lifetime.ApplicationStarted.Register(() =>
     });
 });
 
-
+AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+{
+    Console.WriteLine("🔥 ERRO GLOBAL: " + eventArgs.ExceptionObject);
+};
 //compressão para a serialização dos json
 
 app.UseResponseCompression();

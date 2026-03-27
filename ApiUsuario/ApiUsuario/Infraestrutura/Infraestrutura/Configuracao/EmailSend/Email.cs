@@ -1,4 +1,4 @@
-﻿namespace Entidades.SendEmail
+﻿namespace Infraestrutura.SendEmail
 {
     public class EmailSettings
     {

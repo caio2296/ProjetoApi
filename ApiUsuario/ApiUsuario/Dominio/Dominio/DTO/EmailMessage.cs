@@ -1,4 +1,4 @@
-﻿namespace Entidades.SendEmail
+﻿namespace Dominio.DTO
 {
     public class EmailMessage
     {

@@ -22,12 +22,12 @@ namespace Projeto.Controllers{
         // GET: api/<FrutasController>
         [HttpGet("/api/ListarFrutas")]
         [Produces("application/json")]
-        public async Task<ActionResult<List<Frutas>>> ListarFrutas()
+        public async Task<ActionResult<IEnumerable<Frutas>>> ListarFrutas()
         {
             try
             {
                 var frutas = await _frutasAplicacao.ListarFrutas();
-                if (frutas == null || frutas.Count == 0)
+                if (frutas == null || !frutas.Any())
                     return NotFound("Nenhuma fruta encontrada.");
 
                 return Ok(frutas);

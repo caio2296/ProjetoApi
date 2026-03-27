@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>5eb78f80-e0e0-4fbf-8035-8778f2498f06</UserSecretsId>
   </PropertyGroup>
 
 <ItemGroup>
@@ -30,6 +31,10 @@
     <ProjectReference Include="..\..\Aplicacao\Aplicacao\Aplicacao.csproj" />
     <ProjectReference Include="..\..\Entidade\Entidades\Entidades.csproj" />
     <ProjectReference Include="..\..\Infraestrutura\Infraestrutura\Infraestrutura.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SendEmail\" />
   </ItemGroup>
 
 </Project>

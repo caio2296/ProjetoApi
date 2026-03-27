@@ -1,4 +1,5 @@
-﻿using Entidades.SendEmail;
+﻿using Dominio.DTO;
+
 
 namespace Dominio.Servicos.Interfaces
 {

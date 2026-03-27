@@ -1,4 +1,4 @@
-﻿using Entidades.SendEmail;
+﻿using Dominio.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;

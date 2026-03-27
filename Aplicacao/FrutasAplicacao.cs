@@ -50,12 +50,12 @@ namespace Aplicacao
             throw new NotImplementedException();
         }
 
-        public Task<List<Frutas>> Listar()
+        public Task<IEnumerable<Frutas>> Listar()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<Frutas>> ListarFrutas()
+        public async Task<IEnumerable<Frutas>> ListarFrutas()
         {
             return await _frutasServicos.ListarFrutas();
         }
