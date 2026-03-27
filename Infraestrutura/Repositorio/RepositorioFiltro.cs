@@ -19,14 +19,15 @@ namespace Infraestrutura.Repositorio
             try
             {
                 using (var conn = new SqlConnection(_connectionString))
-                using (var command = new SqlCommand("dbo.sp_MontaJsonComPai", conn))
+                using (var command = new SqlCommand("dbo.sp_MontaJsonPorPagina", conn))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add("@IdPagina", SqlDbType.Int).Value = id;
-                    command.Parameters.AddWithValue("@rootId", id);
+                    command.Parameters
+                        .Add("@IdPagina", SqlDbType.Int)
+                        .Value = id;
 
-                    var outputParam = new SqlParameter("@json", SqlDbType.NVarChar, -1)
+                    var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
                     {
                         Direction = ParameterDirection.Output
                     };
@@ -40,8 +41,8 @@ namespace Infraestrutura.Repositorio
 
                     if (!string.IsNullOrWhiteSpace(resultado))
                     {
-                        var filtro = JsonSerializer.Deserialize<FilterCat>(resultado);
-                        return filtro != null ? new List<FilterCat> { filtro } : new List<FilterCat>();
+                        var filtro = JsonSerializer.Deserialize<List<FilterCat>>(resultado);
+                        return filtro != null ? filtro : new List<FilterCat>();
                     }
 
                     return new List<FilterCat>();
