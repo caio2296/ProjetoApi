@@ -17,7 +17,7 @@ namespace Infraestrutura.Repositorio.Generico
 
             //.UseMySql("Server=localhost;DataBase=autoregistro;Uid=root;Pwd=zxcasd384!A",
             // new MySqlServerVersion(new Version(8, 0, 37)))
-            .UseSqlServer("Server=REUNIAOJANUSRJ;Database=projeto;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;")
+            .UseSqlServer("Data Source=REUNIAOJANUSRJ\\MSSQLSERVER01;Initial Catalog=projeto;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False;")
             .Options;
         }
 
@@ -27,13 +27,12 @@ namespace Infraestrutura.Repositorio.Generico
             {
                 using (var data = new Contexto(_optionBuilder))
                 {
-                    data.Set<T>().Add(Objeto);
+                    data.Set<T>().Add(Objeto); 
                     await data.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
             {
-
                 throw new Exception(ex.Message);
             }
 
@@ -54,7 +53,7 @@ namespace Infraestrutura.Repositorio.Generico
             throw new NotImplementedException();
         }
 
-        public async Task<T?> BuscarPorId(string id)
+        public  Task<T?> BuscarPorId(int id)
         {
             throw new NotImplementedException();
         }
@@ -68,15 +67,6 @@ namespace Infraestrutura.Repositorio.Generico
                 await data.SaveChangesAsync();
             }
         }
-
-        //public async Task<T?> BuscarPorId(string id)
-        //{
-        //    using (var data = new Contexto(_optionBuilder))
-        //    {
-        //        return await data.Set<T>()
-        //            .FindAsync(id);
-        //    }
-        //}
 
 
         public async Task Excluir(T Objeto)
