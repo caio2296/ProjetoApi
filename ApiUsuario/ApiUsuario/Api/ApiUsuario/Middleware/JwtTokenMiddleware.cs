@@ -21,6 +21,8 @@ public class JwtTokenMiddleware
         _logger = logger;
     }
 
+
+
     public async Task InvokeAsync(HttpContext context)
     {
         // Ignora requisição raiz ou swagger
