@@ -27,20 +27,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithMachineName()
+    .Enrich.WithThreadId()
     .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
     .WriteTo.Console()
     .WriteTo.File(
         "logs/api-.log",
         rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7
+        retainedFileCountLimit: 7,
+        outputTemplate:
+        "{Timestamp:HH:mm:ss} [{Level:u3}] ({ThreadId}) {Message:lj}{NewLine}{Exception}"
     )
-    .WriteTo.File(
-        "Logs/memory-log-.txt",
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7
-    )
-    .MinimumLevel
-    .Override("Microsoft", LogEventLevel.Warning)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -65,8 +64,16 @@ builder.Services.AddScoped<IFiltros>(provider =>
 
 builder.Services.AddHostedService<WarmupService>();
 
+builder.Services.AddHostedService<WarmupService>();
 
-builder.Services.AddControllers();
+
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(opt =>
+        {
+            opt.JsonSerializerOptions.DefaultIgnoreCondition =
+                JsonIgnoreCondition.WhenWritingNull;
+        }); 
 
 builder.Services.AddMemoryCache();
 
@@ -182,6 +189,8 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 });
 
 var app = builder.Build();
+
+
 
 var frontClient = "http://localhost:4200";
 app.UseCors(x =>
