@@ -62,7 +62,10 @@ builder.Services.AddScoped<IFiltros>(provider =>
         provider.GetRequiredService<IConfiguration>()
                   .GetConnectionString("Default")!));
 
-builder.Services.AddHostedService<WarmupService>();
+builder.Services.AddScoped<ITabela>(provider => 
+    new RepositorioTabela(
+        provider.GetRequiredService<IConfiguration>()
+        .GetConnectionString("Default")!));
 
 builder.Services.AddHostedService<WarmupService>();
 
@@ -79,6 +82,8 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<IFiltroAplicacao, FiltroAplicacao>();
 
+builder.Services.AddScoped<ITabelaAplicacao,TabelaAplicacao>();
+
 
 builder.Services.AddScoped<ICalendarAplicacao, CalendarAplicacao>();
 builder.Services.AddScoped<IFrutasAplicacao, FrutasAplicacao>();
@@ -87,6 +92,7 @@ builder.Services.AddScoped<IFrutasAplicacao, FrutasAplicacao>();
 builder.Services.AddScoped<IFiltrosServicos, FiltrosServico>();
 builder.Services.AddScoped<IFrutasServicos, FrutasServico>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.AddScoped<ITabelaServico,TabelaServico>();
 
 builder.Services.AddSingleton(typeof(IGenerico<>), typeof(RepositorioGenerico<>));
 
@@ -187,6 +193,12 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Fastest;
 
 });
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never;
+    });
 
 var app = builder.Build();
 
@@ -300,6 +312,30 @@ app.Lifetime.ApplicationStarted.Register(() =>
             //Log.Information("🔥 Warmup HTTP Pipeline executado.");
 
             //Log.Information("🚀 Warmup COMPLETO finalizado.");
+
+            // =========================
+            // 🔎 Warmup SP sp_MontaJsonPorPagina
+            // =========================
+            await using (var cmdFiltro = new SqlCommand("dbo.sp_GetTablabisJson", conn))
+            {
+                cmdFiltro.CommandType = CommandType.StoredProcedure;
+
+                cmdFiltro.Parameters
+                    .Add("@IdTablabis", SqlDbType.Int)
+                    .Value = 0;
+
+                var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                cmdFiltro.Parameters.Add(outputParam);
+
+                await cmdFiltro.ExecuteNonQueryAsync();
+
+                Log.Information("Warmup Tabelas executado.");
+
+            }
         }
         catch (Exception ex)
         {
