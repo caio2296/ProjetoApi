@@ -13,6 +13,7 @@ namespace Entidades.Tabelas
         public string? format_text { get; set; }
         public Indicator? indicator { get; set; }
         public Variation? variation { get; set; }
+        public int order {get; set; }
         public Unit? unit { get; set; }
     }
 

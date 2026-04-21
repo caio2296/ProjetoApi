@@ -36,11 +36,11 @@ namespace Infraestrutura.Repositorio
             {
                 using (var con = new SqlConnection(_connectionString))
 
-                using (var com = new SqlCommand("sp_GetTablabisJson", con))
+                using (var com = new SqlCommand("sp_MontaJsonPorPaginaTabela", con))
                 {
                     com.CommandType = CommandType.StoredProcedure;
 
-                    com.Parameters.Add("@IdTablabis", SqlDbType.Int)
+                    com.Parameters.Add("@IdPagina", SqlDbType.Int)
                         .Value = id;
 
                     var outputParam = new SqlParameter("@JsonFinal", SqlDbType.NVarChar, -1)
