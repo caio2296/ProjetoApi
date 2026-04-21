@@ -15,6 +15,7 @@ namespace Entidades.Tabelas
         public bool? enabled { get; set; }
         public ICollection<Tooltip>? tooltip { get; set; }
         public ICollection<LinkButton>? linkbuttons { get; set; }
+        public ICollection<Node> nodes { get; set; }
     }
 
   

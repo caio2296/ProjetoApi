@@ -12,7 +12,6 @@ namespace Entidades.Tabelas
         public string description { get; set; }
         public bool enable { get; set; }
         public  ICollection<Template> templates { get; set; }
-        public ICollection<Node> nodes { get; set; }
         public ICollection<Semaphore> semaphores { get; set; }
     }
 
