@@ -12,10 +12,12 @@ namespace Entidades.Tabelas
         public string? text { get; set; }
         public int? order { get; set; }
         public int? level { get; set; }
+        public int? parent {  get; set; }
         public bool? enabled { get; set; }
         public ICollection<Tooltip>? tooltip { get; set; }
         public ICollection<LinkButton>? linkbuttons { get; set; }
         public ICollection<Node> nodes { get; set; }
+        
     }
 
   
