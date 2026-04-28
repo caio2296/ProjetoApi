@@ -225,13 +225,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 // WARMUP para evitar cold start (JWT + Database + Stored Procedures)
 app.Lifetime.ApplicationStarted.Register(() =>
@@ -348,7 +345,6 @@ AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
 {
     Console.WriteLine("🔥 ERRO GLOBAL: " + eventArgs.ExceptionObject);
 };
-
 
 //compressão para a serialização dos json
 
