@@ -58,16 +58,52 @@ namespace Infraestrutura.Repositorio
                     if (!string.IsNullOrWhiteSpace(resultado))
                     {
                         var tabela = JsonSerializer.Deserialize<List<Root>>(resultado);
-                        return tabela != null ? tabela : new List<Root>();
-                    }
 
-                    return new List<Root>();
+                        if (tabela != null)
+                        {
+                            foreach (var root in tabela)
+                            {
+                                if (root.tablabis != null)
+                                {
+                                    foreach (var tablabis in root.tablabis)
+                                    {
+                                        if (tablabis.templates != null)
+                                        {
+                                            foreach (var template in tablabis.templates)
+                                            {
+                                                if (template.cols != null)
+                                                {
+                                                    template.cols = OrganizarPorNivel(template.cols.ToList());
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            return tabela != null ? tabela : new List<Root>();
+                        }
+
+                        return new List<Root>();
+                    }    
                 }
             }
             catch (JsonException ex)
             {
                 throw new Exception("Erro ao desserializar as tabelas.", ex);
             }
+
+            return new List<Root>();
+        }
+
+        private static List<Col> OrganizarPorNivel(
+            List<Col> allCols)
+        {
+            return allCols
+                .OrderBy(c => c.level)
+                .ThenBy(c => c.parent)
+                .ThenBy(c => c.order)
+                .ToList();
         }
 
         public Task Excluir(Root Objeto)
